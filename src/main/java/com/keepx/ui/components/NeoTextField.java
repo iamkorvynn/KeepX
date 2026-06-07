@@ -50,7 +50,10 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
 
     @Override
     public void onThemeChanged(boolean isDark) {
-        field.setForeground(ThemeManager.getInstance().getTextPrimary());
+        ThemeManager tm = ThemeManager.getInstance();
+        field.setForeground(tm.getTextPrimary());
+        field.setCaretColor(ColorTokens.PRIMARY_ACCENT);
+        field.setBackground(new Color(0, 0, 0, 0));
         repaint();
     }
 

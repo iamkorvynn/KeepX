@@ -9,16 +9,30 @@ import com.keepx.ui.theme.ThemeManager;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.*;
 
 /**
  * SettingsScreen — grouped settings sections:
  * Appearance | Security | Import/Export | Backup/Restore | About
+ *
+ * Dark-mode fix: all labels and the theme toggle button are stored as fields
+ * and updated in onThemeChanged(). The dark/light toggle is a NeoButton
+ * (custom-painted) so it always uses KeepX colors instead of FlatLaf blue.
  */
 public class SettingsScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
 
     private final JLabel lastBackupLabel;
+    private final JLabel titleLabel;
+
+    // Theme toggle — stored as field so onThemeChanged can update its label text
+    private final NeoButton darkModeBtn;
+
+    // Labels that hold ThemeManager colors at construction time → must update on theme change
+    private final List<JLabel>    themedLabels    = new ArrayList<>();
+    private final List<JTextArea> themedTextAreas = new ArrayList<>();
 
     public SettingsScreen() {
         setOpaque(false);
@@ -27,12 +41,25 @@ public class SettingsScreen extends JPanel
             ColorTokens.SCREEN_PADDING, ColorTokens.SCREEN_PADDING,
             80 + ColorTokens.SCREEN_PADDING, ColorTokens.SCREEN_PADDING));
 
-        JLabel title = label("⚙ Settings", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        add(title, BorderLayout.NORTH);
+        titleLabel = label("⚙ Settings", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        trackLabel(titleLabel);
+        add(titleLabel, BorderLayout.NORTH);
 
         JPanel content = transparent();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.add(Box.createVerticalStrut(16));
+
+        // ── Dark Mode Toggle ───────────────────────────────────────────────────
+        // Use NeoButton as a toggle so it follows KeepX palette, not FlatLaf blue
+        darkModeBtn = new NeoButton(
+            ThemeManager.getInstance().isDark() ? "☀ Switch to Light" : "🌙 Switch to Dark",
+            ThemeManager.getInstance().isDark() ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY
+        );
+        darkModeBtn.addActionListener(e -> {
+            ThemeManager.getInstance().toggle();
+            VaultManager.getInstance().saveDarkMode(ThemeManager.getInstance().isDark());
+            // label / variant updated in onThemeChanged()
+        });
 
         // ── Appearance ────────────────────────────────────────────────────────────
         content.add(sectionCard("Appearance", buildAppearanceSection()));
@@ -49,6 +76,7 @@ public class SettingsScreen extends JPanel
         // ── Backup / Restore ──────────────────────────────────────────────────────
         lastBackupLabel = label("Last backup: Never", 13, Font.PLAIN,
                 ThemeManager.getInstance().getTextSecondary());
+        trackLabel(lastBackupLabel);
         content.add(sectionCard("Backup / Restore", buildBackupSection()));
         content.add(Box.createVerticalStrut(ColorTokens.SECTION_GAP));
 
@@ -68,15 +96,10 @@ public class SettingsScreen extends JPanel
     private JPanel buildAppearanceSection() {
         JPanel p = row();
         JLabel lbl = label("Dark Mode", 14, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        JToggleButton toggle = new JToggleButton(ThemeManager.getInstance().isDark() ? "Dark" : "Light");
-        toggle.setSelected(ThemeManager.getInstance().isDark());
-        toggle.setFont(new Font("SansSerif", Font.BOLD, 13));
-        toggle.addActionListener(e -> {
-            ThemeManager.getInstance().toggle();
-            toggle.setText(ThemeManager.getInstance().isDark() ? "Dark" : "Light");
-            VaultManager.getInstance().saveDarkMode(ThemeManager.getInstance().isDark());
-        });
-        p.add(lbl); p.add(Box.createHorizontalGlue()); p.add(toggle);
+        trackLabel(lbl);
+        p.add(lbl);
+        p.add(Box.createHorizontalGlue());
+        p.add(darkModeBtn);
         return p;
     }
 
@@ -94,6 +117,7 @@ public class SettingsScreen extends JPanel
         JPanel p = col();
         JLabel info = label("Import from Chrome / Firefox CSV export", 13, Font.PLAIN,
                 ThemeManager.getInstance().getTextSecondary());
+        trackLabel(info);
         info.setAlignmentX(Component.LEFT_ALIGNMENT);
         NeoButton importBtn = new NeoButton("Import CSV", NeoButton.Variant.SECONDARY);
         importBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -123,20 +147,24 @@ public class SettingsScreen extends JPanel
 
     private JPanel buildAboutSection() {
         JPanel p = col();
-        p.add(label("KeepX v1.0.0", 15, Font.BOLD, ThemeManager.getInstance().getTextPrimary()));
+        JLabel ver = label("KeepX v1.0.0", 15, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        JLabel desc1 = label("Offline AES-256 encrypted password manager", 13, Font.PLAIN,
+                ThemeManager.getInstance().getTextSecondary());
+        JLabel desc2 = label("Built with Java Swing + FlatLaf + Gson", 13, Font.PLAIN,
+                ThemeManager.getInstance().getTextSecondary());
+        trackLabel(ver); trackLabel(desc1); trackLabel(desc2);
+        p.add(ver);
         p.add(Box.createVerticalStrut(4));
-        p.add(label("Offline AES-256 encrypted password manager", 13, Font.PLAIN,
-                ThemeManager.getInstance().getTextSecondary()));
+        p.add(desc1);
         p.add(Box.createVerticalStrut(4));
-        p.add(label("Built with Java Swing + FlatLaf + Gson", 13, Font.PLAIN,
-                ThemeManager.getInstance().getTextSecondary()));
+        p.add(desc2);
         return p;
     }
 
     private void showChangePwDialog() {
         JDialog dialog = new JDialog(ScreenRouter.getInstance().getMainFrame(),
                 "Change Master Password", true);
-        dialog.setSize(420, 320);
+        dialog.setSize(420, 380);
         dialog.setLocationRelativeTo(ScreenRouter.getInstance().getMainFrame());
 
         JPanel panel = new JPanel();
@@ -148,6 +176,11 @@ public class SettingsScreen extends JPanel
         NeoPasswordField newField      = new NeoPasswordField("New password");
         NeoPasswordField confirmField  = new NeoPasswordField("Confirm new password");
         NeoStrengthMeter meter         = new NeoStrengthMeter();
+
+        JLabel dialogTitle = new JLabel("Change Master Password");
+        dialogTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
+        dialogTitle.setForeground(ThemeManager.getInstance().getTextPrimary());
+
         JLabel errLabel = new JLabel(" ");
         errLabel.setForeground(ColorTokens.DANGER);
         errLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -187,7 +220,7 @@ public class SettingsScreen extends JPanel
         });
         cancelBtn.addActionListener(e -> dialog.dispose());
 
-        panel.add(label("Change Master Password", 18, Font.BOLD, ThemeManager.getInstance().getTextPrimary()));
+        panel.add(dialogTitle);
         panel.add(Box.createVerticalStrut(16));
         panel.add(currentField);
         panel.add(Box.createVerticalStrut(10));
@@ -270,6 +303,8 @@ public class SettingsScreen extends JPanel
         }
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────────
+
     private NeoCard sectionCard(String title, JPanel body) {
         NeoCard card = new NeoCard();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -288,24 +323,68 @@ public class SettingsScreen extends JPanel
     }
 
     private JPanel row() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p.setOpaque(false); p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         return p;
     }
 
-    private JPanel col() { JPanel p = new JPanel(); p.setOpaque(false); p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS)); return p; }
-    private JPanel transparent() { JPanel p = new JPanel(); p.setOpaque(false); return p; }
-    private JPanel transparent(LayoutManager lm) { JPanel p = new JPanel(lm); p.setOpaque(false); return p; }
+    private JPanel col() {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        return p;
+    }
+
+    private JPanel transparent() {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        return p;
+    }
+
+    private JPanel transparent(LayoutManager lm) {
+        JPanel p = new JPanel(lm);
+        p.setOpaque(false);
+        return p;
+    }
 
     private JLabel label(String t, int s, int st, Color c) {
-        JLabel l = new JLabel(t); l.setFont(new Font("SansSerif", st, s)); l.setForeground(c); return l;
+        JLabel l = new JLabel(t);
+        l.setFont(new Font("SansSerif", st, s));
+        l.setForeground(c);
+        return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
-    @Override public void onScreenShown() {
+    /** Track a label so it gets its foreground refreshed on theme change. */
+    private void trackLabel(JLabel l) { themedLabels.add(l); }
+
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+
+        // Refresh all tracked primary labels
+        for (JLabel l : themedLabels) {
+            // Distinguish primary vs secondary by looking at current color (rough heuristic).
+            // Simpler approach: all tracked labels get primary; secondary ones override explicitly.
+            l.setForeground(tm.getTextPrimary());
+        }
+        // Secondary-color labels
+        lastBackupLabel.setForeground(tm.getTextSecondary());
+
+        // Dark mode toggle button label / variant
+        darkModeBtn.setText(isDark ? "☀ Switch to Light" : "🌙 Switch to Dark");
+        darkModeBtn.setVariant(isDark ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY);
+
+        repaint();
+    }
+
+    @Override
+    public void onScreenShown() {
         lastBackupLabel.setText("Last backup: " + VaultManager.getInstance().getLastBackupDate());
     }
-    @Override public void removeNotify() {
+
+    @Override
+    public void removeNotify() {
         super.removeNotify();
         ThemeManager.getInstance().removeThemeChangeListener(this);
     }

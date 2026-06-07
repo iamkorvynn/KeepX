@@ -30,6 +30,8 @@ public class EntryFormScreen extends JPanel
     private final NeoTextField     urlField;
     private final JComboBox<String> categoryBox;
     private final JTextArea        notesArea;
+    private final JTextArea        tipsArea;     // need ref to update color on theme change
+    private final JScrollPane      notesScroll;  // need ref to update border on theme change
     private final NeoStrengthMeter strengthMeter;
     private final NeoButton        saveBtn;
     private final NeoButton        cancelBtn;
@@ -71,6 +73,8 @@ public class EntryFormScreen extends JPanel
 
         categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        categoryBox.setBackground(ThemeManager.getInstance().getInputFill());
+        categoryBox.setForeground(ThemeManager.getInstance().getTextPrimary());
         categoryBox.setPreferredSize(new Dimension(0, ColorTokens.INPUT_HEIGHT));
         categoryBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, ColorTokens.INPUT_HEIGHT));
 
@@ -103,12 +107,17 @@ public class EntryFormScreen extends JPanel
 
         notesArea = new JTextArea(6, 20);
         notesArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        notesArea.setForeground(ThemeManager.getInstance().getTextPrimary());
+        notesArea.setBackground(ThemeManager.getInstance().getSurface());
+        notesArea.setCaretColor(ColorTokens.PRIMARY_ACCENT);
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
-        JScrollPane notesScroll = new JScrollPane(notesArea);
+        notesScroll = new JScrollPane(notesArea);
         notesScroll.setPreferredSize(new Dimension(0, 160));
         notesScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         notesScroll.setBorder(BorderFactory.createLineBorder(ThemeManager.getInstance().getBorder(), 2));
+        notesScroll.setOpaque(false);
+        notesScroll.getViewport().setOpaque(false);
 
         NeoButton generateBtn = new NeoButton("🎲 Generate Password", NeoButton.Variant.SECONDARY);
         generateBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -119,20 +128,20 @@ public class EntryFormScreen extends JPanel
             ScreenRouter.getInstance().navigate(ScreenRouter.GENERATOR);
         });
 
-        JTextArea tips = new JTextArea(
+        tipsArea = new JTextArea(
             "💡 Tips:\n• Use 12+ characters\n• Mix upper/lowercase\n• Add numbers & symbols\n• Never reuse passwords");
-        tips.setEditable(false);
-        tips.setOpaque(false);
-        tips.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        tips.setForeground(ThemeManager.getInstance().getTextSecondary());
-        tips.setLineWrap(true);
-        tips.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        tipsArea.setEditable(false);
+        tipsArea.setOpaque(false);
+        tipsArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        tipsArea.setForeground(ThemeManager.getInstance().getTextSecondary());
+        tipsArea.setLineWrap(true);
+        tipsArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
 
         right.add(fieldGroup("Notes (optional)", notesScroll));
         right.add(Box.createVerticalStrut(ColorTokens.VERTICAL_GAP));
         right.add(generateBtn);
         right.add(Box.createVerticalStrut(16));
-        right.add(tips);
+        right.add(tipsArea);
 
         form.add(left);
         form.add(right);
@@ -323,7 +332,20 @@ public class EntryFormScreen extends JPanel
         return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        titleLabel.setForeground(tm.getTextPrimary());
+        tipsArea.setForeground(tm.getTextSecondary());
+        notesArea.setForeground(tm.getTextPrimary());
+        notesArea.setBackground(tm.getSurface());
+        notesArea.setCaretColor(ColorTokens.PRIMARY_ACCENT);
+        notesScroll.setBorder(BorderFactory.createLineBorder(tm.getBorder(), 2));
+        // ComboBox colors
+        categoryBox.setBackground(tm.getInputFill());
+        categoryBox.setForeground(tm.getTextPrimary());
+        repaint();
+    }
     @Override public void onScreenShown() {
         if (editingEntry == null) clearForm();
     }

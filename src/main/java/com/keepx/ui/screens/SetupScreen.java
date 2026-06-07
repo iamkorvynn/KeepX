@@ -25,6 +25,12 @@ public class SetupScreen extends JPanel
     private final JLabel           errorLabel;
     private final NeoButton        createBtn;
 
+    // Labels / text areas whose foreground must update on theme change
+    private final JLabel    logoLabel;
+    private final JLabel    taglineLabel;
+    private final JLabel    headingLabel;
+    private final JTextArea disclaimer;
+
     public SetupScreen() {
         setOpaque(false);
         setLayout(new GridBagLayout());
@@ -39,12 +45,14 @@ public class SetupScreen extends JPanel
             p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
 
         // Logo + tagline
-        JLabel logo = styledLabel("🔐 KeepX", 38, Font.BOLD, ThemeManager.getInstance().getAccent());
-        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel tagline = styledLabel("Your secure offline vault", 14, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
-        tagline.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel heading = styledLabel("Create Master Password", 20, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoLabel    = styledLabel("🔐 KeepX", 38, Font.BOLD, ThemeManager.getInstance().getAccent());
+        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        taglineLabel = styledLabel("Your secure offline vault", 14, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        taglineLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        headingLabel = styledLabel("Create Master Password", 20, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Fields
         passwordField = new NeoPasswordField("Enter master password");
@@ -65,17 +73,17 @@ public class SetupScreen extends JPanel
         });
 
         // Disclaimer
-        JTextArea disc = new JTextArea(
+        disclaimer = new JTextArea(
             "⚠️  Your master password is never stored. If forgotten, " +
             "your vault cannot be recovered — by design.");
-        disc.setEditable(false);
-        disc.setOpaque(false);
-        disc.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        disc.setForeground(ThemeManager.getInstance().getTextSecondary());
-        disc.setLineWrap(true);
-        disc.setWrapStyleWord(true);
-        disc.setMaximumSize(new Dimension(400, 60));
-        disc.setAlignmentX(Component.CENTER_ALIGNMENT);
+        disclaimer.setEditable(false);
+        disclaimer.setOpaque(false);
+        disclaimer.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        disclaimer.setForeground(ThemeManager.getInstance().getTextSecondary());
+        disclaimer.setLineWrap(true);
+        disclaimer.setWrapStyleWord(true);
+        disclaimer.setMaximumSize(new Dimension(400, 60));
+        disclaimer.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         errorLabel = new JLabel(" ");
         errorLabel.setForeground(ColorTokens.DANGER);
@@ -89,11 +97,11 @@ public class SetupScreen extends JPanel
 
         // Assemble
         card.add(Box.createVerticalStrut(4));
-        card.add(logo);
+        card.add(logoLabel);
         card.add(Box.createVerticalStrut(4));
-        card.add(tagline);
+        card.add(taglineLabel);
         card.add(Box.createVerticalStrut(24));
-        card.add(heading);
+        card.add(headingLabel);
         card.add(Box.createVerticalStrut(16));
         card.add(passwordField);
         card.add(Box.createVerticalStrut(6));
@@ -101,7 +109,7 @@ public class SetupScreen extends JPanel
         card.add(Box.createVerticalStrut(12));
         card.add(confirmField);
         card.add(Box.createVerticalStrut(16));
-        card.add(disc);
+        card.add(disclaimer);
         card.add(Box.createVerticalStrut(8));
         card.add(errorLabel);
         card.add(Box.createVerticalStrut(14));
@@ -162,8 +170,17 @@ public class SetupScreen extends JPanel
         c.setMaximumSize(new Dimension(400, ColorTokens.INPUT_HEIGHT + ColorTokens.SHADOW_OFFSET));
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        headingLabel.setForeground(tm.getTextPrimary());
+        taglineLabel.setForeground(tm.getTextSecondary());
+        disclaimer.setForeground(tm.getTextSecondary());
+        repaint();
+    }
+
     @Override public void onScreenShown() { errorLabel.setText(" "); }
+
     @Override public void removeNotify() {
         super.removeNotify();
         ThemeManager.getInstance().removeThemeChangeListener(this);

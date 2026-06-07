@@ -32,6 +32,7 @@ public class DashboardScreen extends JPanel
     private final JPanel       entryListPanel;
     private final JScrollPane  scrollPane;
     private final JLabel       emptyState;
+    private final JLabel       titleLabel; // stored for theme update
 
     private String activeCategory = "All";
     private String searchQuery    = "";
@@ -49,9 +50,9 @@ public class DashboardScreen extends JPanel
         JPanel header = transparent();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
-        JLabel title = label("🔐 My Vault", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
-        header.add(title);
+        titleLabel = label("🔐 My Vault", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        header.add(titleLabel);
         header.add(Box.createVerticalStrut(12));
 
         // Search
@@ -310,7 +311,13 @@ public class DashboardScreen extends JPanel
         return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        titleLabel.setForeground(tm.getTextPrimary());
+        emptyState.setForeground(tm.getTextSecondary());
+        repaint();
+    }
     @Override public void removeNotify() {
         super.removeNotify();
         ThemeManager.getInstance().removeThemeChangeListener(this);

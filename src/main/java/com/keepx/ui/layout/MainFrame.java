@@ -162,8 +162,19 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
 
     @Override
     public void onThemeChanged(boolean isDark) {
+        // Force background repaint on all layers
+        ThemeManager tm = ThemeManager.getInstance();
+        getContentPane().setBackground(tm.getBackground());
+        cardPanel.setBackground(tm.getBackground());
         cardPanel.repaint();
+        layeredPane.repaint();
         repaint();
+        // Repaint entire component tree without resetting LAF properties
+        SwingUtilities.invokeLater(() -> {
+            for (Window w : Window.getWindows()) {
+                w.repaint();
+            }
+        });
     }
 
     @Override

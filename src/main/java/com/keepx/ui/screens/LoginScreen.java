@@ -21,6 +21,9 @@ public class LoginScreen extends JPanel
     private final NeoButton        unlockBtn;
     private final JLabel           errorLabel;
     private final JLabel           attemptsLabel;
+    private final JLabel           lockLabel;
+    private final JLabel           brandLabel;
+    private final JLabel           subtitleLabel;
 
     private int     failedAttempts = 0;
     private boolean lockedOut      = false;
@@ -40,15 +43,15 @@ public class LoginScreen extends JPanel
             p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
 
         // Lock icon + brand
-        JLabel lock = label("🔐", 52, Font.BOLD, ThemeManager.getInstance().getAccent());
-        lock.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lockLabel = label("🔐", 52, Font.BOLD, ThemeManager.getInstance().getAccent());
+        lockLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel brand = label("KeepX", 32, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        brand.setAlignmentX(Component.CENTER_ALIGNMENT);
+        brandLabel = label("KeepX", 32, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        brandLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subtitle = label("Enter your master password to unlock", 13, Font.PLAIN,
+        subtitleLabel = label("Enter your master password to unlock", 13, Font.PLAIN,
                 ThemeManager.getInstance().getTextSecondary());
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Password field
         passField = new NeoPasswordField("Master password");
@@ -77,11 +80,11 @@ public class LoginScreen extends JPanel
 
         // Assemble
         card.add(Box.createVerticalStrut(8));
-        card.add(lock);
+        card.add(lockLabel);
         card.add(Box.createVerticalStrut(4));
-        card.add(brand);
+        card.add(brandLabel);
         card.add(Box.createVerticalStrut(6));
-        card.add(subtitle);
+        card.add(subtitleLabel);
         card.add(Box.createVerticalStrut(28));
         card.add(passField);
         card.add(Box.createVerticalStrut(8));
@@ -173,7 +176,15 @@ public class LoginScreen extends JPanel
         return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        brandLabel.setForeground(tm.getTextPrimary());
+        subtitleLabel.setForeground(tm.getTextSecondary());
+        attemptsLabel.setForeground(tm.getTextSecondary());
+        repaint();
+    }
+
     @Override public void onScreenShown() {
         passField.setText("");
         passField.setError(false);
@@ -183,6 +194,7 @@ public class LoginScreen extends JPanel
         unlockBtn.setText("Unlock Vault");
         SwingUtilities.invokeLater(() -> passField.getPasswordField().requestFocusInWindow());
     }
+
     @Override public void removeNotify() {
         super.removeNotify();
         ThemeManager.getInstance().removeThemeChangeListener(this);
