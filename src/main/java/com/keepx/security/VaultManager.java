@@ -9,8 +9,8 @@ import javax.crypto.SecretKey;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.*;
-import java.security.*;
 import java.util.*;
+
 
 /**
  * VaultManager — singleton managing all vault file I/O.
