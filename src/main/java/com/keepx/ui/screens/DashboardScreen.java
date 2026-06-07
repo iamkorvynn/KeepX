@@ -181,44 +181,55 @@ public class DashboardScreen extends JPanel
 
     private JPanel buildEntryCard(VaultEntry entry, boolean pinned) {
         NeoCard card = new NeoCard(pinned);
-        card.setLayout(new BorderLayout(12, 0));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 108));
+        // Use BorderLayout: CENTER = info, EAST = buttons
+        card.setLayout(new BorderLayout(16, 0));
+        // No fixed max height — let content determine height naturally, just give padding room for shadow
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
         card.setBorder(BorderFactory.createEmptyBorder(
-            10, 14, 10 + ColorTokens.SHADOW_OFFSET, 14 + ColorTokens.SHADOW_OFFSET));
+            14, 18, 14 + ColorTokens.SHADOW_OFFSET, 18 + ColorTokens.SHADOW_OFFSET));
 
-        // Left: info
-        JPanel info = transparent();
+        // ── Left: info column ─────────────────────────────────────────────────
+        JPanel info = new JPanel();
+        info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
 
         JLabel siteName = label(entry.getSiteName() != null ? entry.getSiteName() : "Untitled",
-                16, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+                15, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        siteName.setAlignmentX(Component.LEFT_ALIGNMENT); // CRITICAL: left-align in BoxLayout
+
         JLabel username = label(entry.getUsername() != null ? entry.getUsername() : "",
                 13, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        username.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel badgeRow = transparent();
-        badgeRow.setLayout(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        // Badge + date on one row
+        JPanel badgeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        badgeRow.setOpaque(false);
+        badgeRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         NeoBadge badge = new NeoBadge(entry.getCategory() != null ? entry.getCategory() : "Other");
-        badgeRow.add(badge);
-
         String date = new SimpleDateFormat("MMM d, yyyy").format(new Date(entry.getLastModified()));
-        JLabel mod = label("Modified " + date, 11, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        JLabel mod = label("· Modified " + date, 11, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        badgeRow.add(badge);
         badgeRow.add(mod);
 
+        info.add(Box.createVerticalGlue());
         info.add(siteName);
-        info.add(Box.createVerticalStrut(2));
+        info.add(Box.createVerticalStrut(3));
         info.add(username);
-        info.add(Box.createVerticalStrut(4));
+        info.add(Box.createVerticalStrut(6));
         info.add(badgeRow);
+        info.add(Box.createVerticalGlue());
 
         card.add(info, BorderLayout.CENTER);
 
-        // Right: action buttons
-        JPanel actions = transparent();
-        actions.setLayout(new FlowLayout(FlowLayout.RIGHT, 6, 4));
+        // ── Right: action buttons ─────────────────────────────────────────────
+        JPanel actions = new JPanel();
+        actions.setOpaque(false);
+        actions.setLayout(new BoxLayout(actions, BoxLayout.X_AXIS));
 
         NeoButton starBtn = new NeoButton(entry.isFavourite() ? "★" : "☆", NeoButton.Variant.SECONDARY);
         starBtn.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        starBtn.setPreferredSize(new Dimension(40, 36));
+        starBtn.setPreferredSize(new Dimension(42, 36));
+        starBtn.setMaximumSize(new Dimension(42, 36));
         starBtn.setToolTipText(entry.isFavourite() ? "Unpin" : "Pin");
         starBtn.addActionListener(e -> {
             try {
@@ -230,27 +241,39 @@ public class DashboardScreen extends JPanel
 
         NeoButton copyBtn = new NeoButton("Copy", NeoButton.Variant.SECONDARY);
         copyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        copyBtn.setPreferredSize(new Dimension(58, 36));
+        copyBtn.setPreferredSize(new Dimension(60, 36));
+        copyBtn.setMaximumSize(new Dimension(60, 36));
         copyBtn.addActionListener(e -> copyPassword(entry));
 
         NeoButton editBtn = new NeoButton("Edit", NeoButton.Variant.SECONDARY);
         editBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        editBtn.setPreferredSize(new Dimension(50, 36));
+        editBtn.setPreferredSize(new Dimension(52, 36));
+        editBtn.setMaximumSize(new Dimension(52, 36));
         editBtn.addActionListener(e -> openEdit(entry));
 
         actions.add(starBtn);
+        actions.add(Box.createHorizontalStrut(6));
         actions.add(copyBtn);
+        actions.add(Box.createHorizontalStrut(6));
         actions.add(editBtn);
-        card.add(actions, BorderLayout.EAST);
 
-        // Bottom spacer for shadow
-        JPanel wrap = transparent();
+        // Vertically center the button row within the card's EAST slot
+        JPanel actionsWrap = new JPanel(new GridBagLayout());
+        actionsWrap.setOpaque(false);
+        actionsWrap.add(actions); // GridBagLayout centers its single child
+
+        card.add(actionsWrap, BorderLayout.EAST);
+
+        // ── Outer wrap: card + shadow gap ──────────────────────────────────────
+        JPanel wrap = new JPanel();
+        wrap.setOpaque(false);
         wrap.setLayout(new BoxLayout(wrap, BoxLayout.Y_AXIS));
         wrap.setAlignmentX(Component.LEFT_ALIGNMENT);
         wrap.add(card);
         wrap.add(Box.createVerticalStrut(8));
         return wrap;
     }
+
 
     private void copyPassword(VaultEntry entry) {
         SwingWorker<String, Void> w = new SwingWorker<>() {
