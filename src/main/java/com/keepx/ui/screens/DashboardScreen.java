@@ -70,6 +70,7 @@ public class DashboardScreen extends JPanel
         // Category chips
         chipRow = transparent();
         chipRow.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        chipRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         for (String cat : CATEGORIES) {
             NeoButton chip = new NeoButton(cat, NeoButton.Variant.SECONDARY);
             chip.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -116,7 +117,13 @@ public class DashboardScreen extends JPanel
     }
 
     @Override
-    public void onScreenShown() { refreshList(); }
+    public void onScreenShown() {
+        activeCategory = "All";
+        searchQuery = "";
+        searchField.setText("");
+        refreshChips();
+        refreshList();
+    }
 
     private void onSearch() {
         searchQuery = searchField.getText().trim().toLowerCase();
