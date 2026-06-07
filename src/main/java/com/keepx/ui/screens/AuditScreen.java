@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * AuditScreen — Security audit showing weak, duplicate, and old passwords.

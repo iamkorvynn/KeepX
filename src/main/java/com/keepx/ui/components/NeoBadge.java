@@ -1,6 +1,5 @@
 package com.keepx.ui.components;
 
-import com.keepx.ui.theme.ColorTokens;
 import com.keepx.ui.theme.ThemeManager;
 
 import javax.swing.*;
