@@ -69,7 +69,11 @@ public class ScreenRouter {
         // Show/hide nav
         boolean showNav = !NO_NAV_SCREENS.contains(screenId);
         navBar.setVisible(showNav);
-        if (showNav) navBar.setActiveScreen(screenId);
+        if (showNav) {
+            navBar.setActiveScreen(screenId);
+        } else {
+            mainFrame.stopAutoLockTimer();
+        }
 
         // Re-position nav after visibility change
         mainFrame.repositionNav();

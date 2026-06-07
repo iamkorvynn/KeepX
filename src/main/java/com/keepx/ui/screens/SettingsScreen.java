@@ -268,14 +268,18 @@ public class SettingsScreen extends JPanel
 
     private void handleBackup() {
         JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Save Vault Backup");
-        fc.setSelectedFile(new File("keepx_backup.kpx"));
-        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        fc.setDialogTitle("Choose Backup Destination Folder");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File selectedFolder = fc.getSelectedFile();
+            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+            String fileName = "keepx_backup_" + timestamp + ".kpx";
+            Path dest = selectedFolder.toPath().resolve(fileName);
             try {
-                VaultManager.getInstance().backupTo(fc.getSelectedFile().toPath());
+                VaultManager.getInstance().backupTo(dest);
                 lastBackupLabel.setText("Last backup: " + VaultManager.getInstance().getLastBackupDate());
                 JLayeredPane lp = ScreenRouter.getInstance().getMainFrame().getLayeredPane2();
-                NeoToast.show(lp, "Backup saved!", NeoToast.Type.SUCCESS, 3000);
+                NeoToast.show(lp, "Backup saved to: " + fileName, NeoToast.Type.SUCCESS, 3500);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Backup failed: " + ex.getMessage());
             }

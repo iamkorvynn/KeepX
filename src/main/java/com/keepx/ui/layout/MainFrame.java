@@ -35,7 +35,8 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
 
         // ── Basic frame config ───────────────────────────────────────────────
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(1100, 700));
+        setResizable(false);
+        setSize(new Dimension(1280, 800));
         setPreferredSize(new Dimension(1280, 800));
         setLocationRelativeTo(null);
 

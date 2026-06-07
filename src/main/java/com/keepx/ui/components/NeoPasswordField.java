@@ -155,7 +155,7 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
 
         // 4. Placeholder
-        if (passField.getPassword().length == 0 && !placeholder.isEmpty() && !passField.isFocusOwner()) {
+        if (passField.getPassword().length == 0 && !placeholder.isEmpty()) {
             g2.setFont(new Font("SansSerif", Font.PLAIN, 14));
             g2.setColor(tm.getTextSecondary());
             FontMetrics fm = g2.getFontMetrics();

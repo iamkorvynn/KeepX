@@ -183,7 +183,19 @@ public class GeneratorScreen extends JPanel
         Toolkit.getDefaultToolkit().getSystemClipboard()
             .setContents(new StringSelection(pw), null);
         JLayeredPane lp = ScreenRouter.getInstance().getMainFrame().getLayeredPane2();
-        NeoToast.show(lp, "Password copied!", NeoToast.Type.SUCCESS, 3000);
+        NeoToast.show(lp, "Copied! Clears in 30s", NeoToast.Type.SUCCESS, 3500);
+
+        // Auto-clear clipboard after 30 seconds
+        new javax.swing.Timer(30_000, ev -> {
+            Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try {
+                String current = (String) cb.getData(DataFlavor.stringFlavor);
+                if (pw.equals(current)) {
+                    cb.setContents(new StringSelection(""), null);
+                }
+            } catch (Exception ignored) {}
+            ((javax.swing.Timer) ev.getSource()).stop();
+        }).start();
     }
 
     private void refreshHistory() {
@@ -202,7 +214,19 @@ public class GeneratorScreen extends JPanel
                 Toolkit.getDefaultToolkit().getSystemClipboard()
                     .setContents(new StringSelection(pw), null);
                 JLayeredPane lp = ScreenRouter.getInstance().getMainFrame().getLayeredPane2();
-                NeoToast.show(lp, "Copied!", NeoToast.Type.SUCCESS, 2000);
+                NeoToast.show(lp, "Copied! Clears in 30s", NeoToast.Type.SUCCESS, 3500);
+
+                // Auto-clear clipboard after 30 seconds
+                new javax.swing.Timer(30_000, ev -> {
+                    Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    try {
+                        String current = (String) cb.getData(DataFlavor.stringFlavor);
+                        if (pw.equals(current)) {
+                            cb.setContents(new StringSelection(""), null);
+                        }
+                    } catch (Exception ignored) {}
+                    ((javax.swing.Timer) ev.getSource()).stop();
+                }).start();
             });
             row.add(l);
             row.add(Box.createHorizontalGlue());

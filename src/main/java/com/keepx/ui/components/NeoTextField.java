@@ -109,7 +109,7 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
         g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
 
         // 4. Placeholder
-        if (field.getText().isEmpty() && !placeholder.isEmpty() && !field.isFocusOwner()) {
+        if (field.getText().isEmpty() && !placeholder.isEmpty()) {
             g2.setFont(new Font("SansSerif", Font.PLAIN, 14));
             g2.setColor(tm.getTextSecondary());
             FontMetrics fm = g2.getFontMetrics();
