@@ -14,6 +14,7 @@ import java.awt.event.*;
  * Placeholder text painted manually in secondary text color.
  */
 public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     protected final JTextField field;
     private String placeholder = "";

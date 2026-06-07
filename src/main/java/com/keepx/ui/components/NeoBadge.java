@@ -11,6 +11,7 @@ import java.awt.*;
  * Color is specified per instance; border always uses theme border.
  */
 public class NeoBadge extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     private String text;
     private Color fillColor;

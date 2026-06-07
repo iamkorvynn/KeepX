@@ -14,6 +14,7 @@ import java.awt.event.*;
  * setStrength(0-4) updates segments; 0 = all empty.
  */
 public class NeoStrengthMeter extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     private int strength = 0; // 0=none, 1=Weak, 2=Fair, 3=Good, 4=Strong
 

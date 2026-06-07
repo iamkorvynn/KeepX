@@ -21,6 +21,7 @@ import java.awt.event.*;
  */
 public class EntryFormScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private static final String[] CATEGORIES = {"Social", "Banking", "Work", "Shopping", "Entertainment", "Other"};
 

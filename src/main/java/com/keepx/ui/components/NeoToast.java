@@ -14,6 +14,7 @@ import java.awt.event.*;
  * Use NeoToast.show(parent, message, type, durationMs) to display.
  */
 public class NeoToast extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     public enum Type { INFO, SUCCESS, WARNING, DANGER }
 

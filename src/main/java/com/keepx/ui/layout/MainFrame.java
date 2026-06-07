@@ -21,6 +21,7 @@ import java.awt.event.*;
  * updateUI callbacks also re-apply the background directly.
  */
 public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     private final JLayeredPane layeredPane;
     private final JPanel       cardPanel;

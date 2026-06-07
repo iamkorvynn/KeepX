@@ -13,6 +13,7 @@ import java.awt.event.*;
  * Supports PRIMARY (yellow), SECONDARY (surface), DANGER (red) variants.
  */
 public class NeoButton extends JButton implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     public enum Variant { PRIMARY, SECONDARY, DANGER }
 

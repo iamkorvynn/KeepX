@@ -15,6 +15,7 @@ import java.awt.event.*;
  * never swallowed by the underlying JPasswordField.
  */
 public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     private final JPasswordField passField;
     private final char           originalEcho;

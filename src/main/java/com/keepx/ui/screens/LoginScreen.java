@@ -16,6 +16,7 @@ import java.awt.event.*;
  */
 public class LoginScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private final NeoPasswordField passField;
     private final NeoButton        unlockBtn;

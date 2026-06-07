@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class AuditScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private final JLabel weakCount;
     private final JLabel dupCount;

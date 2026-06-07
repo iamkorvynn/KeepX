@@ -19,6 +19,7 @@ import java.util.function.Consumer;
  */
 public class GeneratorScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private final JLabel            previewLabel;
     private final JSlider           lengthSlider;

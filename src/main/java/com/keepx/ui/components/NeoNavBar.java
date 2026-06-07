@@ -15,6 +15,7 @@ import java.awt.event.*;
  * Active item = yellow fill + 6px shadow. Inactive = surface fill.
  */
 public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListener {
+    private static final long serialVersionUID = 1L;
 
     public static final String[] SCREEN_IDS = {"VAULT", "ADD_ENTRY", "GENERATOR", "AUDIT", "SETTINGS"};
     public static final String[] LABELS     = {"Vault", "Add Entry", "Generator", "Audit", "Settings"};

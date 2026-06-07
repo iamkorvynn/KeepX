@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  */
 public class DashboardScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private static final String[] CATEGORIES = {"All", "Social", "Banking", "Work", "Shopping", "Entertainment", "Other"};
 

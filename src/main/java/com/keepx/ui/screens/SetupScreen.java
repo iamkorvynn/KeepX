@@ -18,6 +18,7 @@ import java.awt.event.*;
  */
 public class SetupScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private final NeoPasswordField passwordField;
     private final NeoPasswordField confirmField;

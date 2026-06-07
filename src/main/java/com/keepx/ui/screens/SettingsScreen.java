@@ -23,6 +23,7 @@ import java.nio.file.*;
  */
 public class SettingsScreen extends JPanel
         implements ThemeManager.ThemeChangeListener, ScreenRouter.ScreenLifecycle {
+    private static final long serialVersionUID = 1L;
 
     private final JLabel lastBackupLabel;
     private final JLabel titleLabel;
