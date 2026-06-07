@@ -56,8 +56,9 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
         int r = ColorTokens.CORNER_RADIUS;
         int s = ColorTokens.SHADOW_OFFSET;
 
+        // Pinned: subtle lavender tint in dark, light lavender in light mode
         Color fill = pinned
-                ? (tm.isDark() ? new Color(0x2E2448) : ColorTokens.SECONDARY_ACCENT.brighter().brighter())
+                ? (tm.isDark() ? new Color(0x222230) : new Color(0xEAE0FF))
                 : tm.getSurface();
 
         // 1. Shadow
