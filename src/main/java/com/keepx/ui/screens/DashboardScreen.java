@@ -182,9 +182,9 @@ public class DashboardScreen extends JPanel
     private JPanel buildEntryCard(VaultEntry entry, boolean pinned) {
         NeoCard card = new NeoCard(pinned);
         card.setLayout(new BorderLayout(12, 0));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 88));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 108));
         card.setBorder(BorderFactory.createEmptyBorder(
-            12, 14, 12 + ColorTokens.SHADOW_OFFSET, 14 + ColorTokens.SHADOW_OFFSET));
+            10, 14, 10 + ColorTokens.SHADOW_OFFSET, 14 + ColorTokens.SHADOW_OFFSET));
 
         // Left: info
         JPanel info = transparent();
