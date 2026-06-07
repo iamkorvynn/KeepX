@@ -1,0 +1,9 @@
+target/
+maven_dist/
+dependency-reduced-pom.xml
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
