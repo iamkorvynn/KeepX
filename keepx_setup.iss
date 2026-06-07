@@ -4,7 +4,7 @@
 [Setup]
 ; App Metadata
 AppName=KeepX
-AppVersion=1.0.0
+AppVersion=1.2.0
 AppPublisher=KeepX Team
 AppCopyright=Copyright (C) 2026 KeepX Team
 DefaultDirName={autopf}\KeepX
@@ -34,7 +34,7 @@ Source: "target\KeepX.jar"; DestDir: "{app}"; Flags: ignoreversion
 
 ; Optional: Include bundled JRE folder next to the EXE if present
 ; Uncomment the line below when you place a local 'jre' folder inside the project root
-; Source: "jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\KeepX"; Filename: "{app}\KeepX.exe"

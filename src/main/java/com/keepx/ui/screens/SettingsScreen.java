@@ -147,7 +147,7 @@ public class SettingsScreen extends JPanel
 
     private JPanel buildAboutSection() {
         JPanel p = col();
-        JLabel ver = label("KeepX v1.0.0", 15, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        JLabel ver = label("KeepX v1.2.0", 15, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         JLabel desc1 = label("Offline AES-256 encrypted password manager", 13, Font.PLAIN,
                 ThemeManager.getInstance().getTextSecondary());
         JLabel desc2 = label("Built with Java Swing + FlatLaf + Gson", 13, Font.PLAIN,

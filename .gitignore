@@ -8,3 +8,5 @@ dependency-reduced-pom.xml
 .settings/
 .DS_Store
 temp-maven/
+jre/
+

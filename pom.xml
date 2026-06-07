@@ -7,7 +7,7 @@
 
     <groupId>com.keepx</groupId>
     <artifactId>KeepX</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
     <name>KeepX — Secure Password Manager</name>
     <description>Offline AES-256 encrypted desktop password manager in Java Swing</description>
@@ -111,12 +111,12 @@
                                 <requires64Bit>true</requires64Bit>
                             </jre>
                             <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>1.0.0.0</txtFileVersion>
+                                <fileVersion>1.2.0.0</fileVersion>
+                                <txtFileVersion>1.2.0.0</txtFileVersion>
                                 <fileDescription>KeepX Password Manager</fileDescription>
                                 <copyright>KeepX Team</copyright>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtProductVersion>1.0.0.0</txtProductVersion>
+                                <productVersion>1.2.0.0</productVersion>
+                                <txtProductVersion>1.2.0.0</txtProductVersion>
                                 <productName>KeepX</productName>
                                 <companyName>KeepX Team</companyName>
                                 <internalName>KeepX</internalName>

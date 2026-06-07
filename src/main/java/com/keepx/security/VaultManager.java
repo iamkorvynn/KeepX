@@ -295,7 +295,9 @@ public class VaultManager {
         requireUnlocked();
         String json      = gson.toJson(entries);
         String encrypted = EncryptionManager.encrypt(json, activeKey);
-        Files.writeString(vaultPath, encrypted);
+        Path tempFile = vaultPath.getParent().resolve(VAULT_FILE + ".tmp");
+        Files.writeString(tempFile, encrypted, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.move(tempFile, vaultPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private void loadVault() throws Exception {
@@ -313,8 +315,11 @@ public class VaultManager {
     private void writeConfig() throws Exception {
         Files.createDirectories(vaultDir);
         String json = gson.toJson(config);
-        Files.writeString(configPath, json);
+        Path tempFile = configPath.getParent().resolve(CONFIG_FILE + ".tmp");
+        Files.writeString(tempFile, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.move(tempFile, configPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     }
+
 
     private void loadConfig() throws Exception {
         String json = Files.readString(configPath);
