@@ -36,7 +36,7 @@ public class AuditScreen extends JPanel
 
         // ── Title ─────────────────────────────────────────────────────────────────
         JPanel titleRow = transparent(new FlowLayout(FlowLayout.LEFT));
-        JLabel title = label("🔍 Security Audit", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        JLabel title = label("\uD83D\uDD0D Security Audit", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         NeoButton rescanBtn = new NeoButton("Rescan", NeoButton.Variant.SECONDARY);
         rescanBtn.setPreferredSize(new Dimension(90, 36));
         rescanBtn.addActionListener(e -> runAudit());
@@ -149,7 +149,7 @@ public class AuditScreen extends JPanel
                     all.addAll(r.weak); all.addAll(r.duplicates); all.addAll(r.old);
 
                     if (all.isEmpty()) {
-                        statusLabel.setText("✅ All passwords look good!");
+                        statusLabel.setText("\u2705 All passwords look good!");
                     } else {
                         statusLabel.setText(all.size() + " issue(s) found.");
                         for (FlaggedEntry f : all) flaggedPanel.add(buildFlaggedRow(f));

@@ -39,8 +39,8 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         passField.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 44)); // right margin for eye
         passField.setFont(new Font("SansSerif", Font.PLAIN, 14));
         passField.setCaretColor(ColorTokens.PRIMARY_ACCENT);
-        passField.setEchoChar('●');
-        originalEcho = passField.getEchoChar(); // capture '●' as original
+        passField.setEchoChar('\u25CF');
+        originalEcho = passField.getEchoChar(); // capture echo char as original
 
         passField.addFocusListener(new FocusAdapter() {
             @Override public void focusGained(FocusEvent e) { focused = true;  repaint(); }
@@ -85,7 +85,7 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         if (showPassword) {
             passField.setEchoChar((char) 0); // 0 = show plain text
         } else {
-            passField.setEchoChar(originalEcho); // restore '●'
+            passField.setEchoChar(originalEcho); // restore echo char
         }
         repaint();
     }

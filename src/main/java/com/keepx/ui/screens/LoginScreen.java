@@ -44,7 +44,7 @@ public class LoginScreen extends JPanel
             p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
 
         // Lock icon + brand
-        lockLabel = label("🔐", 52, Font.BOLD, ThemeManager.getInstance().getAccent());
+        lockLabel = label("\uD83D\uDD12", 52, Font.BOLD, ThemeManager.getInstance().getAccent());
         lockLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         brandLabel = label("KeepX", 32, Font.BOLD, ThemeManager.getInstance().getTextPrimary());

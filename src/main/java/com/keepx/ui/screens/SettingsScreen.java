@@ -42,7 +42,7 @@ public class SettingsScreen extends JPanel
             ColorTokens.SCREEN_PADDING, ColorTokens.SCREEN_PADDING,
             80 + ColorTokens.SCREEN_PADDING, ColorTokens.SCREEN_PADDING));
 
-        titleLabel = label("⚙ Settings", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        titleLabel = label("\u2699 Settings", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         trackLabel(titleLabel);
         add(titleLabel, BorderLayout.NORTH);
 
@@ -53,7 +53,7 @@ public class SettingsScreen extends JPanel
         // ── Dark Mode Toggle ───────────────────────────────────────────────────
         // Use NeoButton as a toggle so it follows KeepX palette, not FlatLaf blue
         darkModeBtn = new NeoButton(
-            ThemeManager.getInstance().isDark() ? "☀ Switch to Light" : "🌙 Switch to Dark",
+            ThemeManager.getInstance().isDark() ? "\u2600 Switch to Light" : "\uD83C\uDF19 Switch to Dark",
             ThemeManager.getInstance().isDark() ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY
         );
         darkModeBtn.addActionListener(e -> {
@@ -377,7 +377,7 @@ public class SettingsScreen extends JPanel
         lastBackupLabel.setForeground(tm.getTextSecondary());
 
         // Dark mode toggle button label / variant
-        darkModeBtn.setText(isDark ? "☀ Switch to Light" : "🌙 Switch to Dark");
+        darkModeBtn.setText(isDark ? "\u2600 Switch to Light" : "\uD83C\uDF19 Switch to Dark");
         darkModeBtn.setVariant(isDark ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY);
 
         repaint();

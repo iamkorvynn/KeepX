@@ -46,7 +46,7 @@ public class SetupScreen extends JPanel
             p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
 
         // Logo + tagline
-        logoLabel    = styledLabel("🔐 KeepX", 38, Font.BOLD, ThemeManager.getInstance().getAccent());
+        logoLabel    = styledLabel("\uD83D\uDD12 KeepX", 38, Font.BOLD, ThemeManager.getInstance().getAccent());
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         taglineLabel = styledLabel("Your secure offline vault", 14, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
@@ -75,7 +75,7 @@ public class SetupScreen extends JPanel
 
         // Disclaimer
         disclaimer = new JTextArea(
-            "⚠️  Your master password is never stored. If forgotten, " +
+            "\u26A0\uFE0F  Your master password is never stored. If forgotten, " +
             "your vault cannot be recovered — by design.");
         disclaimer.setEditable(false);
         disclaimer.setOpaque(false);

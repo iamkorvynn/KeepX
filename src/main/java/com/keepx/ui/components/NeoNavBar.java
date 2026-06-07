@@ -19,15 +19,15 @@ public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListene
 
     public static final String[] SCREEN_IDS = {"VAULT", "ADD_ENTRY", "GENERATOR", "AUDIT", "SETTINGS"};
     public static final String[] LABELS     = {"Vault", "Add Entry", "Generator", "Audit", "Settings"};
-    public static final String[] ICONS      = {"⊟", "＋", "⚙", "🛡", "⚙"}; // Unicode glyphs
+    public static final String[] ICONS      = {"\u229F", "\uFF0B", "\u2699", "\uD83D\uDEE1", "\u2699"}; // Unicode glyphs
 
     // Better icons using unicode
     private static final String[] NAV_ICONS = {
-        "🔐",  // Vault
-        "✚",   // Add Entry
-        "🎲",  // Generator
-        "🔍",  // Audit
-        "⚙"    // Settings
+        "\uD83D\uDD12",  // Vault
+        "\u271A",   // Add Entry
+        "\uD83C\uDFB2",  // Generator
+        "\uD83D\uDD0D",  // Audit
+        "\u2699"    // Settings
     };
 
     private String activeScreen = "VAULT";

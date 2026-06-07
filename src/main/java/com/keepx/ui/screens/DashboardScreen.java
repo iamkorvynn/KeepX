@@ -51,7 +51,7 @@ public class DashboardScreen extends JPanel
         JPanel header = transparent();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
-        titleLabel = label("🔐 My Vault", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        titleLabel = label("\uD83D\uDD12 My Vault", 26, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         header.add(titleLabel);
         header.add(Box.createVerticalStrut(12));
@@ -170,7 +170,7 @@ public class DashboardScreen extends JPanel
         entryListPanel.removeAll();
 
         if (!pinned.isEmpty()) {
-            JLabel pinnedTitle = label("⭐ Pinned", 14, Font.BOLD, ThemeManager.getInstance().getAccent());
+            JLabel pinnedTitle = label("\u2B50 Pinned", 14, Font.BOLD, ThemeManager.getInstance().getAccent());
             pinnedTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
             pinnedPanel.add(pinnedTitle);
             for (VaultEntry e : pinned) pinnedPanel.add(buildEntryCard(e, true));
