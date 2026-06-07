@@ -11,20 +11,15 @@ import java.util.List;
 /**
  * ThemeManager — singleton that controls light/dark theme state for KeepX.
  *
- * KEY DESIGN NOTE:
- * We intentionally do NOT call SwingUtilities.updateComponentTreeUI() after
- * toggling the theme.  That call resets every Swing component's foreground /
- * background back to FlatLaf defaults, wiping our custom KeepX palette.
+ * RENDERING ORDER (critical for correct dark mode):
+ *  1. Inject KeepX palette into UIManager (override FlatLaf blue with our dark purple).
+ *  2. Apply FlatLaf LAF so it reads from UIManager.
+ *  3. Call updateComponentTreeUI so every Swing component inherits UIManager values.
+ *  4. Explicitly set background on JFrame, JLayeredPane, content pane (belt + suspenders).
+ *  5. Fire ThemeChangeListeners so custom-painted NeoComponents repaint.
  *
- * Instead:
- *  1. FlatLaf LAF is applied once at startup (or on the first toggle).
- *  2. KeepX's own FlatLaf UI-defaults are injected into UIManager so that
- *     native Swing components (JScrollBar, JComboBox, etc.) inherit the
- *     KeepX palette rather than FlatLaf's blue tones.
- *  3. Every custom-painted NeoComponent registers as a ThemeChangeListener
- *     and repaints itself in onThemeChanged().
- *  4. Standard Swing labels/text areas created at screen-construction time
- *     must be updated by their parent screen's onThemeChanged() method.
+ * Steps 1-2-3 together mean FlatLaf never has a chance to paint its own blue —
+ * our UIManager overrides are already in place before Swing does any layout/paint.
  */
 public final class ThemeManager {
 
@@ -40,9 +35,7 @@ public final class ThemeManager {
     private ThemeManager() {}
 
     public static ThemeManager getInstance() {
-        if (instance == null) {
-            instance = new ThemeManager();
-        }
+        if (instance == null) instance = new ThemeManager();
         return instance;
     }
 
@@ -52,40 +45,77 @@ public final class ThemeManager {
 
     public void setDark(boolean dark) {
         this.isDark = dark;
-        applyFlatLafDefaults();
+        applyTheme();
         notifyListeners();
     }
 
     public void toggle() { setDark(!isDark); }
 
     /**
-     * Apply FlatLaf and inject KeepX palette overrides into UIManager.
-     * Called once at startup. For subsequent toggles we only update UIManager
-     * defaults and notify listeners — no updateComponentTreeUI.
+     * Full theme application:
+     * 1. Inject UIManager palette (KeepX colors override FlatLaf defaults).
+     * 2. Set FlatLaf LAF.
+     * 3. updateComponentTreeUI so all windows pick up UIManager values.
+     * 4. Force JFrame / content pane backgrounds directly.
      */
-    private void applyFlatLafDefaults() {
+    private void applyTheme() {
+        // Step 1 — inject BEFORE setting LAF so FlatLaf reads our overrides
+        injectUIManagerDefaults();
+
+        // Step 2 — set LAF (only needed once; subsequent toggles just re-inject + repaint)
         try {
-            // Apply LAF only on startup (when no windows exist yet) or when explicitly toggling.
-            // We do NOT call updateComponentTreeUI because it wipes custom component colors.
-            if (Window.getWindows().length == 0) {
-                if (isDark) {
-                    UIManager.setLookAndFeel(new FlatDarkLaf());
-                } else {
-                    UIManager.setLookAndFeel(new FlatLightLaf());
-                }
-            }
+            UIManager.setLookAndFeel(isDark ? new FlatDarkLaf() : new FlatLightLaf());
         } catch (UnsupportedLookAndFeelException e) {
-            System.err.println("[ThemeManager] Failed to apply FlatLaf: " + e.getMessage());
+            System.err.println("[ThemeManager] LAF error: " + e.getMessage());
         }
 
-        // Inject KeepX palette into UIManager so Swing internals pick up our colors.
-        // This overrides FlatLaf's default blue tones with our purple/lavender palette.
+        // Step 3 — inject again AFTER LAF so our overrides survive FlatLaf's install
         injectUIManagerDefaults();
+
+        // Step 4 — force-update all Swing components to read from UIManager
+        for (Window w : Window.getWindows()) {
+            SwingUtilities.updateComponentTreeUI(w);
+            // Step 5 — directly set every frame/panel background so Swing never
+            // falls back to a cached FlatLaf color
+            forceWindowBackground(w);
+        }
+    }
+
+    /** Recursively force background/foreground on containers that Swing might miss. */
+    private void forceWindowBackground(Window w) {
+        Color bg      = getBackground();
+        Color surface = getSurface();
+        Color text    = getTextPrimary();
+
+        w.setBackground(bg);
+        if (w instanceof JFrame frame) {
+            frame.getContentPane().setBackground(bg);
+            frame.getRootPane().setBackground(bg);
+            // Walk the layered pane
+            forcePanel(frame.getLayeredPane(), bg, text);
+        }
+        w.repaint();
+    }
+
+    private void forcePanel(Container c, Color bg, Color text) {
+        if (c == null) return;
+        // Only force opaque containers that are plain JPanels (not our custom Neo* components)
+        if (c.getClass() == JPanel.class) {
+            c.setBackground(bg);
+        }
+        // JTextArea that is NOT inside a NeoComponent — force colors
+        if (c instanceof JTextArea ta && !(c.getParent() instanceof JScrollPane sp
+                && sp.getParent() != null && sp.getParent().getClass().getName().contains("Neo"))) {
+            ta.setForeground(text);
+        }
+        for (Component child : c.getComponents()) {
+            if (child instanceof Container cont) forcePanel(cont, bg, text);
+        }
     }
 
     /**
-     * Push KeepX palette into UIManager so native Swing widgets
-     * (JScrollBar, JComboBox popup, JScrollPane viewport, etc.) use our colors.
+     * Push the full KeepX palette into UIManager.
+     * Called both BEFORE and AFTER setLookAndFeel to ensure our values survive.
      */
     private void injectUIManagerDefaults() {
         Color bg      = getBackground();
@@ -95,94 +125,124 @@ public final class ThemeManager {
         Color accent  = ColorTokens.PRIMARY_ACCENT;
         Color input   = getInputFill();
         Color border  = getBorder();
+        Color muted   = getMutedSurface();
 
-        // Panel / container backgrounds
-        UIManager.put("Panel.background",           bg);
-        UIManager.put("RootPane.background",        bg);
-        UIManager.put("Frame.background",           bg);
-        UIManager.put("ContentPane.background",     bg);
-        UIManager.put("OptionPane.background",      surface);
-        UIManager.put("Dialog.background",          surface);
+        // ── Window / container backgrounds ──────────────────────────────────────
+        UIManager.put("Panel.background",               bg);
+        UIManager.put("RootPane.background",            bg);
+        UIManager.put("Frame.background",               bg);
+        UIManager.put("Window.background",              bg);
+        UIManager.put("ContentPane.background",         bg);
+        UIManager.put("OptionPane.background",          surface);
+        UIManager.put("Dialog.background",              surface);
+        UIManager.put("FileChooser.background",         surface);
 
-        // Text colors
-        UIManager.put("Label.foreground",           text);
-        UIManager.put("TextArea.foreground",        text);
-        UIManager.put("TextArea.background",        surface);
-        UIManager.put("TextArea.caretForeground",   accent);
-        UIManager.put("TextField.foreground",       text);
-        UIManager.put("TextField.background",       input);
-        UIManager.put("TextField.caretForeground",  accent);
-        UIManager.put("PasswordField.foreground",   text);
-        UIManager.put("PasswordField.background",   input);
-        UIManager.put("PasswordField.caretForeground", accent);
-        UIManager.put("TextComponent.arc",          ColorTokens.CORNER_RADIUS);
+        // ── Text ─────────────────────────────────────────────────────────────────
+        UIManager.put("Label.foreground",               text);
+        UIManager.put("Label.background",               new Color(0, 0, 0, 0)); // transparent
+        UIManager.put("TextArea.foreground",            text);
+        UIManager.put("TextArea.background",            surface);
+        UIManager.put("TextArea.inactiveForeground",    textSec);
+        UIManager.put("TextArea.caretForeground",       accent);
+        UIManager.put("TextField.foreground",           text);
+        UIManager.put("TextField.background",           input);
+        UIManager.put("TextField.inactiveForeground",   textSec);
+        UIManager.put("TextField.caretForeground",      accent);
+        UIManager.put("TextField.selectionBackground",  accent);
+        UIManager.put("TextField.selectionForeground",  new Color(0x0F0F0F));
+        UIManager.put("PasswordField.foreground",       text);
+        UIManager.put("PasswordField.background",       input);
+        UIManager.put("PasswordField.caretForeground",  accent);
+        UIManager.put("PasswordField.selectionBackground", accent);
+        UIManager.put("PasswordField.selectionForeground", new Color(0x0F0F0F));
 
-        // ComboBox
-        UIManager.put("ComboBox.background",        input);
-        UIManager.put("ComboBox.foreground",        text);
-        UIManager.put("ComboBox.selectionBackground", accent);
-        UIManager.put("ComboBox.selectionForeground", new Color(0x0F0F0F));
-        UIManager.put("ComboBox.buttonBackground",  input);
+        // ── ComboBox ─────────────────────────────────────────────────────────────
+        UIManager.put("ComboBox.background",            input);
+        UIManager.put("ComboBox.foreground",            text);
+        UIManager.put("ComboBox.disabledBackground",    muted);
+        UIManager.put("ComboBox.disabledForeground",    textSec);
+        UIManager.put("ComboBox.selectionBackground",   accent);
+        UIManager.put("ComboBox.selectionForeground",   new Color(0x0F0F0F));
+        UIManager.put("ComboBox.buttonBackground",      input);
+        UIManager.put("ComboBox.buttonArrowColor",      text);
 
-        // ScrollBar — hide visual clutter; match bg
-        UIManager.put("ScrollBar.background",       bg);
-        UIManager.put("ScrollBar.thumb",            textSec);
-        UIManager.put("ScrollBar.thumbDarkShadow",  bg);
-        UIManager.put("ScrollBar.thumbHighlight",   surface);
-        UIManager.put("ScrollBar.track",            bg);
-        UIManager.put("ScrollBar.width",            8);
+        // ── ScrollBar ────────────────────────────────────────────────────────────
+        UIManager.put("ScrollBar.background",           bg);
+        UIManager.put("ScrollBar.thumb",                isDark ? new Color(0x3A2E55) : new Color(0xC4B8E0));
+        UIManager.put("ScrollBar.thumbDarkShadow",      bg);
+        UIManager.put("ScrollBar.thumbHighlight",       surface);
+        UIManager.put("ScrollBar.track",                bg);
+        UIManager.put("ScrollBar.trackHighlight",       bg);
+        UIManager.put("ScrollBar.width",                8);
 
-        // ScrollPane
-        UIManager.put("ScrollPane.background",      bg);
-        UIManager.put("Viewport.background",        bg);
+        // ── ScrollPane / Viewport ────────────────────────────────────────────────
+        UIManager.put("ScrollPane.background",          bg);
+        UIManager.put("Viewport.background",            bg);
 
-        // Button / ToggleButton (only for non-NeoButton native widgets)
-        UIManager.put("Button.background",          surface);
-        UIManager.put("Button.foreground",          text);
-        UIManager.put("ToggleButton.background",    isDark ? new Color(0x3A2E55) : new Color(0xD4C8ED));
-        UIManager.put("ToggleButton.foreground",    text);
-        UIManager.put("ToggleButton.selectedBackground", accent);
-        UIManager.put("ToggleButton.selectedForeground", new Color(0x0F0F0F));
+        // ── Buttons (native Swing, not NeoButton) ────────────────────────────────
+        UIManager.put("Button.background",              surface);
+        UIManager.put("Button.foreground",              text);
+        UIManager.put("Button.hoverBackground",         muted);
+        UIManager.put("ToggleButton.background",        isDark ? new Color(0x2E2448) : new Color(0xD4C8ED));
+        UIManager.put("ToggleButton.foreground",        text);
+        UIManager.put("ToggleButton.selectedBackground",accent);
+        UIManager.put("ToggleButton.selectedForeground",new Color(0x0F0F0F));
 
-        // Focus ring — use accent
-        UIManager.put("Component.focusColor",       accent);
-        UIManager.put("Component.focusWidth",       2);
+        // ── Focus ring ───────────────────────────────────────────────────────────
+        UIManager.put("Component.focusColor",           accent);
+        UIManager.put("Component.focusWidth",           2);
+        UIManager.put("Component.innerFocusWidth",      0);
 
-        // PopupMenu (ComboBox dropdown, context menus)
-        UIManager.put("PopupMenu.background",       surface);
-        UIManager.put("PopupMenu.foreground",       text);
-        UIManager.put("MenuItem.background",        surface);
-        UIManager.put("MenuItem.foreground",        text);
-        UIManager.put("MenuItem.selectionBackground", accent);
-        UIManager.put("MenuItem.selectionForeground", new Color(0x0F0F0F));
+        // ── PopupMenu / DropDown ─────────────────────────────────────────────────
+        UIManager.put("PopupMenu.background",           surface);
+        UIManager.put("PopupMenu.foreground",           text);
+        UIManager.put("PopupMenu.border",               BorderFactory.createLineBorder(border, 2));
+        UIManager.put("MenuItem.background",            surface);
+        UIManager.put("MenuItem.foreground",            text);
+        UIManager.put("MenuItem.selectionBackground",   accent);
+        UIManager.put("MenuItem.selectionForeground",   new Color(0x0F0F0F));
+        UIManager.put("Menu.background",                surface);
+        UIManager.put("Menu.foreground",                text);
 
-        // List (used by ComboBox popup)
-        UIManager.put("List.background",            surface);
-        UIManager.put("List.foreground",            text);
-        UIManager.put("List.selectionBackground",   accent);
-        UIManager.put("List.selectionForeground",   new Color(0x0F0F0F));
+        // ── List (ComboBox popup) ─────────────────────────────────────────────────
+        UIManager.put("List.background",                surface);
+        UIManager.put("List.foreground",                text);
+        UIManager.put("List.selectionBackground",       accent);
+        UIManager.put("List.selectionForeground",       new Color(0x0F0F0F));
 
-        // Table
-        UIManager.put("Table.background",           surface);
-        UIManager.put("Table.foreground",           text);
-        UIManager.put("Table.selectionBackground",  accent);
-        UIManager.put("Table.selectionForeground",  new Color(0x0F0F0F));
-        UIManager.put("TableHeader.background",     surface);
-        UIManager.put("TableHeader.foreground",     textSec);
+        // ── Table ────────────────────────────────────────────────────────────────
+        UIManager.put("Table.background",               surface);
+        UIManager.put("Table.foreground",               text);
+        UIManager.put("Table.gridColor",                border);
+        UIManager.put("Table.selectionBackground",      accent);
+        UIManager.put("Table.selectionForeground",      new Color(0x0F0F0F));
+        UIManager.put("TableHeader.background",         muted);
+        UIManager.put("TableHeader.foreground",         textSec);
 
-        // Separator
-        UIManager.put("Separator.foreground",       border);
+        // ── ToolTip ──────────────────────────────────────────────────────────────
+        UIManager.put("ToolTip.background",             surface);
+        UIManager.put("ToolTip.foreground",             text);
+        UIManager.put("ToolTip.border",                 BorderFactory.createLineBorder(border, 1));
 
-        // ToolTip
-        UIManager.put("ToolTip.background",         surface);
-        UIManager.put("ToolTip.foreground",         text);
+        // ── Separator ────────────────────────────────────────────────────────────
+        UIManager.put("Separator.foreground",           border);
 
-        // FileChooser
-        UIManager.put("FileChooser.background",     bg);
-        UIManager.put("FileView.directoryIcon",     null);
+        // ── OptionPane ───────────────────────────────────────────────────────────
+        UIManager.put("OptionPane.messageForeground",   text);
+        UIManager.put("OptionPane.background",          surface);
 
-        // OptionPane
-        UIManager.put("OptionPane.messageForeground", text);
+        // ── FlatLaf-specific: disable ALL accent/highlight colors that are blue ──
+        UIManager.put("@accentColor",                   accent);
+        UIManager.put("@accentBaseColor",               accent);
+        UIManager.put("Component.accentColor",          accent);
+        UIManager.put("TabbedPane.selectedBackground",  accent);
+        UIManager.put("TabbedPane.underlineColor",      accent);
+        UIManager.put("CheckBox.icon.selectedBackground", accent);
+        UIManager.put("CheckBox.icon.checkmarkColor",   new Color(0x0F0F0F));
+        UIManager.put("RadioButton.icon.selectedColor", accent);
+        UIManager.put("Slider.thumbColor",              accent);
+        UIManager.put("Slider.trackValueColor",         accent);
+        UIManager.put("ProgressBar.foreground",         accent);
     }
 
     // ── Listener Management ───────────────────────────────────────────────────────
@@ -196,11 +256,8 @@ public final class ThemeManager {
     }
 
     private void notifyListeners() {
-        // Snapshot to avoid ConcurrentModificationException if a listener removes itself
         List<ThemeChangeListener> snapshot = new ArrayList<>(listeners);
-        for (ThemeChangeListener l : snapshot) {
-            l.onThemeChanged(isDark);
-        }
+        for (ThemeChangeListener l : snapshot) l.onThemeChanged(isDark);
     }
 
     // ── Color Accessors ────────────────────────────────────────────────────────────
@@ -214,7 +271,6 @@ public final class ThemeManager {
     public Color getInputFill()      { return isDark ? ColorTokens.DARK_INPUT_FILL    : ColorTokens.LIGHT_INPUT_FILL;    }
     public Color getMutedSurface()   { return isDark ? ColorTokens.DARK_MUTED_SURFACE : ColorTokens.LIGHT_MUTED_SURFACE; }
 
-    // Accent colors are the same in both modes
     public Color getAccent()          { return ColorTokens.PRIMARY_ACCENT;   }
     public Color getSecondaryAccent() { return ColorTokens.SECONDARY_ACCENT; }
     public Color getDanger()          { return ColorTokens.DANGER;           }
@@ -224,11 +280,16 @@ public final class ThemeManager {
     // ── Init on startup ────────────────────────────────────────────────────────────
 
     /**
-     * Call once from Main.java before creating the JFrame.
-     * Detects saved dark-mode preference and applies FlatLaf + UIManager palette.
+     * Call once from Main.java before creating any Swing component.
      */
     public void initialize(boolean preferDark) {
         this.isDark = preferDark;
-        applyFlatLafDefaults();
+        injectUIManagerDefaults(); // inject first
+        try {
+            UIManager.setLookAndFeel(isDark ? new FlatDarkLaf() : new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            System.err.println("[ThemeManager] LAF error: " + e.getMessage());
+        }
+        injectUIManagerDefaults(); // inject again after LAF install
     }
 }

@@ -15,6 +15,10 @@ import java.awt.event.*;
  * Layer DEFAULT_LAYER: CardLayout panel with all screens.
  * Layer PALETTE_LAYER: floating NeoNavBar centered at bottom.
  * Auto-lock timer (5 min inactivity) implemented here.
+ *
+ * DARK MODE NOTE: The cardPanel is OPAQUE with an explicit background color
+ * so the JLayeredPane behind it never shows FlatLaf's default color.
+ * updateUI callbacks also re-apply the background directly.
  */
 public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListener {
 
@@ -35,19 +39,39 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
         setPreferredSize(new Dimension(1280, 800));
         setLocationRelativeTo(null);
 
+        Color bg = ThemeManager.getInstance().getBackground();
+
+        // ── Force JFrame background (eliminates white flash and FlatLaf default) ─
+        getContentPane().setBackground(bg);
+        getRootPane().setBackground(bg);
+        setBackground(bg);
+
         // ── Layered pane ─────────────────────────────────────────────────────
-        layeredPane = new JLayeredPane();
+        layeredPane = new JLayeredPane() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Paint our dark background under every layer
+                g.setColor(ThemeManager.getInstance().getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        layeredPane.setOpaque(true);
+        layeredPane.setBackground(bg);
         setContentPane(layeredPane);
 
         // ── Card panel (content layer) ────────────────────────────────────────
         cardLayout = new CardLayout();
         cardPanel  = new JPanel(cardLayout) {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Always fill with the current theme background
                 g.setColor(ThemeManager.getInstance().getBackground());
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
         };
-        cardPanel.setOpaque(false);
+        // OPAQUE = true so it fully covers the layered pane below
+        cardPanel.setOpaque(true);
+        cardPanel.setBackground(bg);
         layeredPane.add(cardPanel, JLayeredPane.DEFAULT_LAYER);
 
         // ── Nav bar (palette layer — floats above content) ────────────────────
@@ -121,11 +145,8 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
         autoLockTimer = new Timer(AUTO_LOCK_MS, e -> lockVault());
         autoLockTimer.setRepeats(false);
 
-        // Reset timer on any user input event
         AWTEventListener resetListener = event -> {
-            if (autoLockTimer.isRunning()) {
-                autoLockTimer.restart();
-            }
+            if (autoLockTimer.isRunning()) autoLockTimer.restart();
         };
 
         Toolkit.getDefaultToolkit().addAWTEventListener(
@@ -134,13 +155,8 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
         );
     }
 
-    public void startAutoLockTimer() {
-        autoLockTimer.restart();
-    }
-
-    public void stopAutoLockTimer() {
-        autoLockTimer.stop();
-    }
+    public void startAutoLockTimer() { autoLockTimer.restart(); }
+    public void stopAutoLockTimer()  { autoLockTimer.stop();    }
 
     private void lockVault() {
         VaultManager.getInstance().lock();
@@ -162,19 +178,19 @@ public class MainFrame extends JFrame implements ThemeManager.ThemeChangeListene
 
     @Override
     public void onThemeChanged(boolean isDark) {
-        // Force background repaint on all layers
-        ThemeManager tm = ThemeManager.getInstance();
-        getContentPane().setBackground(tm.getBackground());
-        cardPanel.setBackground(tm.getBackground());
-        cardPanel.repaint();
+        Color bg = ThemeManager.getInstance().getBackground();
+
+        // Direct color forcing — belt + suspenders
+        setBackground(bg);
+        getContentPane().setBackground(bg);
+        getRootPane().setBackground(bg);
+        layeredPane.setBackground(bg);
+        cardPanel.setBackground(bg);
+
+        // Trigger full repaint cascade
         layeredPane.repaint();
+        cardPanel.repaint();
         repaint();
-        // Repaint entire component tree without resetting LAF properties
-        SwingUtilities.invokeLater(() -> {
-            for (Window w : Window.getWindows()) {
-                w.repaint();
-            }
-        });
     }
 
     @Override
