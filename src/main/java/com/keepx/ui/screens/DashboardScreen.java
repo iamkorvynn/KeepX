@@ -213,7 +213,7 @@ public class DashboardScreen extends JPanel
                         : (tm.isDark() ? new Color(0x24, 0x1D, 0x35) : new Color(0xF8, 0xF5, 0xFF));
 
                 // Shadow color per spec
-                Color shadow = tm.isDark() ? new Color(0x2D, 0x20, 0x40) : new Color(0x00, 0x00, 0x00);
+                Color shadow = tm.getShadow();
 
                 // Border: accent on hover, else standard border
                 Color border = hovered[0]

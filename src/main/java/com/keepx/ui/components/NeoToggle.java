@@ -99,7 +99,7 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int trackX = 0;
-        int trackY = (getHeight() - TRACK_H) / 2;
+        int trackY = 0; // Align to top-left to prevent shadow clipping at the bottom
 
         // ── 1. Hard drop shadow (solid rectangle, offset right+down) ──────────
         g2.setColor(tm.getShadow());

@@ -32,6 +32,7 @@ public class EntryFormScreen extends JPanel
     private final JTextArea        notesArea;
     private final JTextArea        tipsArea;     // need ref to update color on theme change
     private final JScrollPane      notesScroll;  // need ref to update border on theme change
+    private JComponent             notesWrapper; // custom shadow panel wrapper
     private final NeoStrengthMeter strengthMeter;
     private final NeoButton        saveBtn;
     private final NeoButton        cancelBtn;
@@ -77,6 +78,9 @@ public class EntryFormScreen extends JPanel
         categoryBox.setForeground(ThemeManager.getInstance().getTextPrimary());
         categoryBox.setPreferredSize(new Dimension(0, ColorTokens.INPUT_HEIGHT));
         categoryBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, ColorTokens.INPUT_HEIGHT));
+        
+        // Wrap with NeoComboBox for border and shadow
+        NeoComboBox<String> categoryBoxWrapper = new NeoComboBox<>(categoryBox);
 
         // Strength meter updates on password type
         passwordField.getPasswordField().getDocument().addDocumentListener(new DocumentListener() {
@@ -99,7 +103,7 @@ public class EntryFormScreen extends JPanel
         left.add(Box.createVerticalStrut(ColorTokens.VERTICAL_GAP));
         left.add(fieldGroup("URL (optional)", urlField));
         left.add(Box.createVerticalStrut(ColorTokens.VERTICAL_GAP));
-        left.add(fieldGroup("Category", categoryBox));
+        left.add(fieldGroup("Category", categoryBoxWrapper));
 
         // Right column
         JPanel right = transparent();
@@ -112,12 +116,50 @@ public class EntryFormScreen extends JPanel
         notesArea.setCaretColor(ColorTokens.PRIMARY_ACCENT);
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
+        
         notesScroll = new JScrollPane(notesArea);
-        notesScroll.setPreferredSize(new Dimension(0, 160));
-        notesScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
-        notesScroll.setBorder(BorderFactory.createLineBorder(ThemeManager.getInstance().getBorder(), 2));
+        notesScroll.setPreferredSize(new Dimension(0, 140));
+        notesScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
+        notesScroll.setBorder(null); // border drawn by wrapper
         notesScroll.setOpaque(false);
         notesScroll.getViewport().setOpaque(false);
+
+        // Wrap JScrollPane inside a Neo-Brutalist shadow panel
+        notesWrapper = new JPanel(new BorderLayout()) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            protected void paintComponent(Graphics g) {
+                ThemeManager tm = ThemeManager.getInstance();
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight() - ColorTokens.SHADOW_OFFSET;
+                int r = ColorTokens.CORNER_RADIUS;
+                int s = ColorTokens.SHADOW_OFFSET;
+
+                // 1. Shadow
+                g2.setColor(tm.getShadow());
+                g2.fillRoundRect(s, s, w - s, h, r, r);
+
+                // 2. Fill
+                g2.setColor(tm.getSurface());
+                g2.fillRoundRect(0, 0, w - s, h, r, r);
+
+                // 3. Border
+                g2.setColor(tm.getBorder());
+                g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
+                g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+
+                g2.dispose();
+            }
+        };
+        notesWrapper.setOpaque(false);
+        int shadowS = ColorTokens.SHADOW_OFFSET;
+        notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6, 6 + shadowS, 6 + shadowS));
+        notesWrapper.setPreferredSize(new Dimension(0, 160));
+        notesWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
+        notesWrapper.add(notesScroll, BorderLayout.CENTER);
 
         NeoButton generateBtn = new NeoButton("🎲 Generate Password", NeoButton.Variant.SECONDARY);
         generateBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -137,7 +179,7 @@ public class EntryFormScreen extends JPanel
         tipsArea.setLineWrap(true);
         tipsArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
 
-        right.add(fieldGroup("Notes (optional)", notesScroll));
+        right.add(fieldGroup("Notes (optional)", notesWrapper));
         right.add(Box.createVerticalStrut(ColorTokens.VERTICAL_GAP));
         right.add(generateBtn);
         right.add(Box.createVerticalStrut(16));
@@ -340,7 +382,9 @@ public class EntryFormScreen extends JPanel
         notesArea.setForeground(tm.getTextPrimary());
         notesArea.setBackground(tm.getSurface());
         notesArea.setCaretColor(ColorTokens.PRIMARY_ACCENT);
-        notesScroll.setBorder(BorderFactory.createLineBorder(tm.getBorder(), 2));
+        if (notesWrapper != null) {
+            notesWrapper.repaint();
+        }
         // ComboBox colors
         categoryBox.setBackground(tm.getInputFill());
         categoryBox.setForeground(tm.getTextPrimary());
