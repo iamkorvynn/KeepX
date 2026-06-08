@@ -4,7 +4,7 @@
 [Setup]
 ; App Metadata
 AppName=KeepX
-AppVersion=1.2.0
+AppVersion=1.3.0
 AppPublisher=KeepX Team
 AppCopyright=Copyright (C) 2026 KeepX Team
 DefaultDirName={autopf}\KeepX
