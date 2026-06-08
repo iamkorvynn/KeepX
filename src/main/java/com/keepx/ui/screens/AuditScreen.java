@@ -165,11 +165,9 @@ public class AuditScreen extends JPanel
     }
 
     private JPanel buildFlaggedRow(FlaggedEntry f) {
-        NeoCard card = new NeoCard();
+        NeoCard card = new NeoCard(10, 14);
         card.setLayout(new BorderLayout(10, 0));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
-        card.setBorder(BorderFactory.createEmptyBorder(
-            10, 14, 10 + ColorTokens.SHADOW_OFFSET, 14 + ColorTokens.SHADOW_OFFSET));
 
         JPanel info = transparent();
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
@@ -204,10 +202,8 @@ public class AuditScreen extends JPanel
     }
 
     private JPanel statCard(String title, JLabel count, Color accentColor) {
-        NeoCard card = new NeoCard();
+        NeoCard card = new NeoCard(14);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        int p = 14;
-        card.setBorder(BorderFactory.createEmptyBorder(p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
         count.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel tl = label(title, 12, Font.BOLD, ThemeManager.getInstance().getTextSecondary());
         tl.setAlignmentX(Component.CENTER_ALIGNMENT);

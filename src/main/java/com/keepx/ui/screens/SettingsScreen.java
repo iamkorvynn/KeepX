@@ -30,6 +30,7 @@ public class SettingsScreen extends JPanel
 
     // Theme toggle — custom pill switch; stored as field so onThemeChanged can sync its state
     private final NeoToggle darkModeToggle;
+    private JLabel stateHint;
 
     // Labels that hold ThemeManager colors at construction time → must update on theme change
     private final List<JLabel>    themedLabels    = new ArrayList<>();
@@ -97,14 +98,24 @@ public class SettingsScreen extends JPanel
         p.add(lbl);
         p.add(Box.createHorizontalStrut(16));
         // Small muted label describing current state, sits next to the toggle
-        JLabel stateHint = label(
+        stateHint = label(
             ThemeManager.getInstance().isDark() ? "On" : "Off",
             12, Font.PLAIN, ThemeManager.getInstance().getTextSecondary()
         );
         trackLabel(stateHint);
         p.add(stateHint);
         p.add(Box.createHorizontalGlue());
+
+        JLabel sunIcon = label("\u2600\uFE0F", 16, Font.PLAIN, ThemeManager.getInstance().getTextPrimary()); // ☀️
+        JLabel moonIcon = label("\uD83C\uDF19", 16, Font.PLAIN, ThemeManager.getInstance().getTextPrimary()); // 🌙
+        trackLabel(sunIcon);
+        trackLabel(moonIcon);
+
+        p.add(sunIcon);
+        p.add(Box.createHorizontalStrut(8));
         p.add(darkModeToggle);
+        p.add(Box.createHorizontalStrut(8));
+        p.add(moonIcon);
         return p;
     }
 
@@ -315,10 +326,8 @@ public class SettingsScreen extends JPanel
     // ── Helpers ───────────────────────────────────────────────────────────────────
 
     private NeoCard sectionCard(String title, JPanel body) {
-        NeoCard card = new NeoCard();
+        NeoCard card = new NeoCard(18);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        int p = 18;
-        card.setBorder(BorderFactory.createEmptyBorder(p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
@@ -373,12 +382,14 @@ public class SettingsScreen extends JPanel
 
         // Refresh all tracked primary labels
         for (JLabel l : themedLabels) {
-            // Distinguish primary vs secondary by looking at current color (rough heuristic).
-            // Simpler approach: all tracked labels get primary; secondary ones override explicitly.
             l.setForeground(tm.getTextPrimary());
         }
         // Secondary-color labels
         lastBackupLabel.setForeground(tm.getTextSecondary());
+        if (stateHint != null) {
+            stateHint.setText(isDark ? "On" : "Off");
+            stateHint.setForeground(tm.getTextSecondary());
+        }
 
         // Sync toggle selected state (in case it was changed externally)
         darkModeToggle.setSelected(isDark);

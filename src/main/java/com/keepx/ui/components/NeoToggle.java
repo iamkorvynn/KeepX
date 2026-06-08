@@ -101,10 +101,13 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
         int trackX = 0;
         int trackY = 0; // Align to top-left to prevent shadow clipping at the bottom
 
-        // ── 1. Hard drop shadow (solid rectangle, offset right+down) ──────────
+        int shadowTrackX = tm.isDark() ? trackX : trackX + SHADOW_OFF;
+        int fillTrackX   = tm.isDark() ? trackX + SHADOW_OFF : trackX;
+
+        // ── 1. Hard drop shadow (solid rectangle, offset right+down or left+down) ──
         g2.setColor(tm.getShadow());
         g2.fillRoundRect(
-                trackX + SHADOW_OFF,
+                shadowTrackX,
                 trackY + SHADOW_OFF,
                 TRACK_W,
                 TRACK_H,
@@ -116,13 +119,13 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
                 ? ColorTokens.PRIMARY_ACCENT
                 : (tm.isDark() ? new Color(0x30, 0x27, 0x45) : new Color(0xDE, 0xD5, 0xF0));
         g2.setColor(trackFill);
-        g2.fillRoundRect(trackX, trackY, TRACK_W, TRACK_H, TRACK_H, TRACK_H);
+        g2.fillRoundRect(fillTrackX, trackY, TRACK_W, TRACK_H, TRACK_H, TRACK_H);
 
         // ── 3. Track border ───────────────────────────────────────────────────
         g2.setColor(tm.getBorder());
         g2.setStroke(new BasicStroke(BORDER_W, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g2.drawRoundRect(
-                trackX + 1, trackY + 1,
+                fillTrackX + 1, trackY + 1,
                 TRACK_W - 2, TRACK_H - 2,
                 TRACK_H, TRACK_H
         );
@@ -130,13 +133,14 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
         // ── 4. Thumb ──────────────────────────────────────────────────────────
         int margin = (TRACK_H - THUMB_D) / 2;
         int thumbX = selected
-                ? (trackX + TRACK_W - THUMB_D - margin)   // right side = ON
-                : (trackX + margin);                       // left side  = OFF
+                ? (fillTrackX + TRACK_W - THUMB_D - margin)   // right side = ON
+                : (fillTrackX + margin);                       // left side  = OFF
         int thumbY = trackY + margin;
 
         // Thumb shadow
         g2.setColor(tm.getShadow());
-        g2.fillOval(thumbX + 2, thumbY + 2, THUMB_D, THUMB_D);
+        int thumbShadowX = tm.isDark() ? thumbX - 2 : thumbX + 2;
+        g2.fillOval(thumbShadowX, thumbY + 2, THUMB_D, THUMB_D);
 
         // Thumb fill — white
         g2.setColor(Color.WHITE);
@@ -146,6 +150,7 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
         g2.setColor(tm.getBorder());
         g2.setStroke(new BasicStroke(1.5f));
         g2.drawOval(thumbX, thumbY, THUMB_D - 1, THUMB_D - 1);
+
 
         g2.dispose();
     }

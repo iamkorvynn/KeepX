@@ -79,26 +79,31 @@ public class NeoButton extends JButton implements ThemeManager.ThemeChangeListen
         Color textColor = (variant == Variant.PRIMARY) ? new Color(0x0F0F0F) : tm.getTextPrimary();
         if (variant == Variant.DANGER) textColor = Color.WHITE;
 
+        int shadowX = tm.isDark() ? 0 : shadowOff;
+        int fillX   = tm.isDark() ? shadowOff - translate : translate;
+        int shadowY = shadowOff;
+        int fillY   = translate;
+
         // 1. Shadow rect (hard, no blur) - stays in place
         g2.setColor(shadow);
-        g2.fillRoundRect(shadowOff, shadowOff, w - shadowOff, h - shadowOff, r, r);
+        g2.fillRoundRect(shadowX, shadowY, w - shadowOff, h - shadowOff, r, r);
 
         // 2. Main fill rect - translates/shifts when pressed
         g2.setColor(fill);
-        g2.fillRoundRect(translate, translate, w - shadowOff, h - shadowOff, r, r);
+        g2.fillRoundRect(fillX, fillY, w - shadowOff, h - shadowOff, r, r);
 
         // 3. Border
         g2.setColor(border);
         g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-        g2.drawRoundRect(translate, translate, w - shadowOff - 1, h - shadowOff - 1, r, r);
+        g2.drawRoundRect(fillX, fillY, w - shadowOff - 1, h - shadowOff - 1, r, r);
 
         // 4. Label
         g2.setFont(getFont());
         g2.setColor(textColor);
         FontMetrics fm = g2.getFontMetrics();
         String text = getText();
-        int tx = translate + (w - shadowOff - fm.stringWidth(text)) / 2;
-        int ty = translate + (h - shadowOff - fm.getHeight()) / 2 + fm.getAscent();
+        int tx = fillX + (w - shadowOff - fm.stringWidth(text)) / 2;
+        int ty = fillY + (h - shadowOff - fm.getHeight()) / 2 + fm.getAscent();
         g2.drawString(text, tx, ty);
 
         g2.dispose();

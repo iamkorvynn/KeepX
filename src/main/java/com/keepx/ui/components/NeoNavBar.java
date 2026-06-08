@@ -86,41 +86,48 @@ public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListene
         int pillX = (w - s - pillW) / 2;
         int pillY = 0;
 
+        int bgPillX = tm.isDark() ? pillX + s : pillX;
+        int shadowPillX = tm.isDark() ? pillX : pillX + s;
+
         // 1. Pill shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(pillX + s, pillY + s, pillW, pillH, r, r);
+        g2.fillRoundRect(shadowPillX, pillY + s, pillW, pillH, r, r);
 
         // 2. Pill background
         g2.setColor(tm.getSurface());
-        g2.fillRoundRect(pillX, pillY, pillW, pillH, r, r);
+        g2.fillRoundRect(bgPillX, pillY, pillW, pillH, r, r);
 
         // 3. Pill border
         g2.setColor(tm.getBorder());
         g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-        g2.drawRoundRect(pillX, pillY, pillW - 1, pillH - 1, r, r);
+        g2.drawRoundRect(bgPillX, pillY, pillW - 1, pillH - 1, r, r);
 
         // 4. Nav items
         Font iconFont = new Font("SansSerif", Font.BOLD, 16);
         Font labelFont = new Font("SansSerif", Font.BOLD, 10);
 
         for (int i = 0; i < totalItems; i++) {
-            int itemX = pillX + 12 + i * ITEM_W;
+            int itemX = bgPillX + 12 + i * ITEM_W;
             int itemY = (pillH - ITEM_H) / 2;
             boolean active = SCREEN_IDS[i].equals(activeScreen);
 
             // Active item: primary accent fill + shadow
             if (active) {
                 int as = 3;
+                int activeShadowX = tm.isDark() ? itemX : itemX + as;
+                int activeFillX   = tm.isDark() ? itemX + as : itemX;
                 g2.setColor(tm.getShadow());
-                g2.fillRoundRect(itemX + as, itemY + as, ITEM_W - 4, ITEM_H, 12, 12);
+                g2.fillRoundRect(activeShadowX, itemY + as, ITEM_W - 4, ITEM_H, 12, 12);
                 g2.setColor(ColorTokens.PRIMARY_ACCENT);
-                g2.fillRoundRect(itemX, itemY, ITEM_W - 4, ITEM_H, 12, 12);
+                g2.fillRoundRect(activeFillX, itemY, ITEM_W - 4, ITEM_H, 12, 12);
                 g2.setColor(tm.getBorder());
                 g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-                g2.drawRoundRect(itemX, itemY, ITEM_W - 5, ITEM_H - 1, 12, 12);
+                g2.drawRoundRect(activeFillX, itemY, ITEM_W - 5, ITEM_H - 1, 12, 12);
+                itemX = activeFillX;
             }
 
             itemBounds[i] = new Rectangle(itemX, itemY, ITEM_W - 4, ITEM_H);
+
 
             // Icon
             g2.setFont(iconFont);

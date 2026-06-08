@@ -30,7 +30,11 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
         setOpaque(false);
         setLayout(new BorderLayout());
         int s = ColorTokens.SHADOW_OFFSET;
-        setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        if (ThemeManager.getInstance().isDark()) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
 
         field = new JTextField();
         field.setOpaque(false);
@@ -54,6 +58,12 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
         field.setForeground(tm.getTextPrimary());
         field.setCaretColor(ColorTokens.PRIMARY_ACCENT);
         field.setBackground(new Color(0, 0, 0, 0));
+        int s = ColorTokens.SHADOW_OFFSET;
+        if (isDark) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
         repaint();
     }
 
@@ -90,13 +100,16 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
         // Update text color
         field.setForeground(tm.getTextPrimary());
 
+        int shadowX = tm.isDark() ? 0 : s;
+        int fillX   = tm.isDark() ? s : 0;
+
         // 1. Shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(s, s, w - s, h, r, r);
+        g2.fillRoundRect(shadowX, s, w - s, h, r, r);
 
         // 2. Fill
         g2.setColor(tm.getInputFill());
-        g2.fillRoundRect(0, 0, w - s, h, r, r);
+        g2.fillRoundRect(fillX, 0, w - s, h, r, r);
 
         // 3. Border — accent color when focused, red when error
         Color borderColor = error ? ColorTokens.DANGER
@@ -105,14 +118,14 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
         g2.setColor(borderColor);
         int strokeW = focused ? ColorTokens.HEAVY_BORDER : ColorTokens.BORDER_THICKNESS;
         g2.setStroke(new BasicStroke(strokeW));
-        g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+        g2.drawRoundRect(fillX, 0, w - s - 1, h - 1, r, r);
 
         // 4. Placeholder
         if (field.getText().isEmpty() && !placeholder.isEmpty()) {
             g2.setFont(new Font("SansSerif", Font.PLAIN, 14));
             g2.setColor(tm.getTextSecondary());
             FontMetrics fm = g2.getFontMetrics();
-            g2.drawString(placeholder, 13, (h - fm.getHeight()) / 2 + fm.getAscent());
+            g2.drawString(placeholder, fillX + 13, (h - fm.getHeight()) / 2 + fm.getAscent());
         }
 
         g2.dispose();

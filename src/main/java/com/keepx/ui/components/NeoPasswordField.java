@@ -32,7 +32,11 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         setOpaque(false);
         setLayout(null); // manual layout
         int s = ColorTokens.SHADOW_OFFSET;
-        setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        if (ThemeManager.getInstance().isDark()) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
 
         passField = new JPasswordField();
         passField.setOpaque(false);
@@ -97,7 +101,8 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         int s = ColorTokens.SHADOW_OFFSET;
         int fieldH = Math.max(h - s, ColorTokens.INPUT_HEIGHT);
         // passField fills the full visible area (shadow is painted outside)
-        passField.setBounds(0, 0, w - s, fieldH);
+        int fieldX = ThemeManager.getInstance().isDark() ? s : 0;
+        passField.setBounds(fieldX, 0, w - s, fieldH);
     }
 
     @Override
@@ -105,6 +110,12 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         ThemeManager tm = ThemeManager.getInstance();
         passField.setForeground(tm.getTextPrimary());
         passField.setCaretColor(ColorTokens.PRIMARY_ACCENT);
+        int s = ColorTokens.SHADOW_OFFSET;
+        if (isDark) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
         repaint();
     }
 
@@ -138,13 +149,16 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         passField.setForeground(tm.getTextPrimary());
         passField.setBackground(new Color(0, 0, 0, 0)); // keep transparent
 
+        int shadowX = tm.isDark() ? 0 : s;
+        int fillX   = tm.isDark() ? s : 0;
+
         // 1. Shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(s, s, w - s, h, r, r);
+        g2.fillRoundRect(shadowX, s, w - s, h, r, r);
 
         // 2. Fill
         g2.setColor(tm.getInputFill());
-        g2.fillRoundRect(0, 0, w - s, h, r, r);
+        g2.fillRoundRect(fillX, 0, w - s, h, r, r);
 
         // 3. Border
         Color borderColor = error        ? ColorTokens.DANGER
@@ -153,19 +167,19 @@ public class NeoPasswordField extends JPanel implements ThemeManager.ThemeChange
         int sw = focused ? ColorTokens.HEAVY_BORDER : ColorTokens.BORDER_THICKNESS;
         g2.setColor(borderColor);
         g2.setStroke(new BasicStroke(sw));
-        g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+        g2.drawRoundRect(fillX, 0, w - s - 1, h - 1, r, r);
 
         // 4. Placeholder
         if (passField.getPassword().length == 0 && !placeholder.isEmpty()) {
             g2.setFont(new Font("SansSerif", Font.PLAIN, 14));
             g2.setColor(tm.getTextSecondary());
             FontMetrics fm = g2.getFontMetrics();
-            g2.drawString(placeholder, 13, (h - fm.getHeight()) / 2 + fm.getAscent());
+            g2.drawString(placeholder, fillX + 13, (h - fm.getHeight()) / 2 + fm.getAscent());
         }
 
         // 5. Eye icon (right side) — computed fresh every paint so coords are always correct
         int eyeSize = 22;
-        int eyeX    = w - s - eyeSize - 10;
+        int eyeX    = fillX + (w - s - eyeSize - 10);
         int eyeY    = (h - eyeSize) / 2;
         eyeBounds   = new Rectangle(eyeX, eyeY, eyeSize, eyeSize);
 

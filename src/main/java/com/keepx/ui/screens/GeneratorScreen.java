@@ -58,10 +58,10 @@ public class GeneratorScreen extends JPanel
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
 
         // Generated password preview card
-        NeoCard previewCard = new NeoCard();
+        NeoCard previewCard = new NeoCard(12, 18);
         previewCard.setLayout(new BorderLayout());
         previewCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        previewCard.setBorder(BorderFactory.createEmptyBorder(12, 18, 12 + ColorTokens.SHADOW_OFFSET, 18 + ColorTokens.SHADOW_OFFSET));
+
 
         previewLabel = new JLabel("Click Generate →");
         previewLabel.setFont(new Font("Monospaced", Font.BOLD, 22));

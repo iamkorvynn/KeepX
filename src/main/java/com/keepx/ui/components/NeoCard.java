@@ -16,6 +16,8 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
     private static final long serialVersionUID = 1L;
 
     private boolean pinned = false;
+    private int vPadding = ColorTokens.CARD_PADDING;
+    private int hPadding = ColorTokens.CARD_PADDING;
 
     public NeoCard() {
         init();
@@ -26,17 +28,39 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
         init();
     }
 
+    public NeoCard(int padding) {
+        this.vPadding = padding;
+        this.hPadding = padding;
+        init();
+    }
+
+    public NeoCard(int vPadding, int hPadding) {
+        this.vPadding = vPadding;
+        this.hPadding = hPadding;
+        init();
+    }
+
+    private void updateBorder() {
+        int extra = ColorTokens.SHADOW_OFFSET;
+        if (ThemeManager.getInstance().isDark()) {
+            setBorder(BorderFactory.createEmptyBorder(vPadding, hPadding + extra, vPadding + extra, hPadding));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(vPadding, hPadding, vPadding + extra, hPadding + extra));
+        }
+    }
+
     private void init() {
         setOpaque(false);
         setLayout(new BorderLayout());
-        int p = ColorTokens.CARD_PADDING;
-        int extra = ColorTokens.SHADOW_OFFSET;
-        setBorder(BorderFactory.createEmptyBorder(p, p, p + extra, p + extra));
+        updateBorder();
         ThemeManager.getInstance().addThemeChangeListener(this);
     }
 
     @Override
-    public void onThemeChanged(boolean isDark) { repaint(); }
+    public void onThemeChanged(boolean isDark) {
+        updateBorder();
+        repaint();
+    }
 
     public void setPinned(boolean pinned) {
         this.pinned = pinned;
@@ -61,18 +85,21 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
                 ? (tm.isDark() ? new Color(0x222230) : new Color(0xEAE0FF))
                 : tm.getSurface();
 
+        int shadowX = tm.isDark() ? 0 : s;
+        int fillX   = tm.isDark() ? s : 0;
+
         // 1. Shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(s, s, w - s, h - s, r, r);
+        g2.fillRoundRect(shadowX, s, w - s, h - s, r, r);
 
         // 2. Fill
         g2.setColor(fill);
-        g2.fillRoundRect(0, 0, w - s, h - s, r, r);
+        g2.fillRoundRect(fillX, 0, w - s, h - s, r, r);
 
         // 3. Border
         g2.setColor(tm.getBorder());
         g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-        g2.drawRoundRect(0, 0, w - s - 1, h - s - 1, r, r);
+        g2.drawRoundRect(fillX, 0, w - s - 1, h - s - 1, r, r);
 
         g2.dispose();
         super.paintComponent(g);

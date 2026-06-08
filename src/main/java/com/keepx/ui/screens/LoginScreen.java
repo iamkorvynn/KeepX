@@ -34,13 +34,11 @@ public class LoginScreen extends JPanel
         setOpaque(false);
         setLayout(new GridBagLayout());
 
-        NeoCard card = new NeoCard();
+        NeoCard card = new NeoCard(36);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setPreferredSize(new Dimension(440, 440));
         card.setMaximumSize(new Dimension(440, 440));
-        int p = 36;
-        card.setBorder(BorderFactory.createEmptyBorder(
-            p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
+
 
         // Lock icon + brand
         lockLabel = label("\uD83D\uDD12", 52, Font.BOLD, ThemeManager.getInstance().getAccent());

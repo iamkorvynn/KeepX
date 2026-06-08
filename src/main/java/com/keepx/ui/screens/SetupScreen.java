@@ -35,14 +35,11 @@ public class SetupScreen extends JPanel
         setOpaque(false);
         setLayout(new GridBagLayout());
 
-        NeoCard card = new NeoCard();
+        NeoCard card = new NeoCard(32);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setPreferredSize(new Dimension(480, 580));
         card.setMaximumSize(new Dimension(480, 580));
 
-        int p = 32;
-        card.setBorder(BorderFactory.createEmptyBorder(
-            p, p, p + ColorTokens.SHADOW_OFFSET, p + ColorTokens.SHADOW_OFFSET));
 
         // Logo + tagline
         logoLabel    = styledLabel("\uD83D\uDD12 KeepX", 38, Font.BOLD, ThemeManager.getInstance().getAccent());

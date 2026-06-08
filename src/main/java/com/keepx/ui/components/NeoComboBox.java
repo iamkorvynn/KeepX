@@ -22,7 +22,11 @@ public class NeoComboBox<E> extends JPanel implements ThemeManager.ThemeChangeLi
         setOpaque(false);
         setLayout(new BorderLayout());
         int s = ColorTokens.SHADOW_OFFSET;
-        setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        if (ThemeManager.getInstance().isDark()) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
 
         comboBox.setOpaque(false);
         // Remove standard JComboBox border so our outer panel draws the border
@@ -53,6 +57,12 @@ public class NeoComboBox<E> extends JPanel implements ThemeManager.ThemeChangeLi
         ThemeManager tm = ThemeManager.getInstance();
         comboBox.setBackground(new Color(0, 0, 0, 0));
         comboBox.setForeground(tm.getTextPrimary());
+        int s = ColorTokens.SHADOW_OFFSET;
+        if (isDark) {
+            setBorder(BorderFactory.createEmptyBorder(0, s, s, 0));
+        } else {
+            setBorder(BorderFactory.createEmptyBorder(0, 0, s, s));
+        }
         repaint();
     }
 
@@ -71,20 +81,23 @@ public class NeoComboBox<E> extends JPanel implements ThemeManager.ThemeChangeLi
         comboBox.setForeground(tm.getTextPrimary());
         comboBox.setBackground(new Color(0, 0, 0, 0));
 
+        int shadowX = tm.isDark() ? 0 : s;
+        int fillX   = tm.isDark() ? s : 0;
+
         // 1. Shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(s, s, w - s, h, r, r);
+        g2.fillRoundRect(shadowX, s, w - s, h, r, r);
 
         // 2. Fill
         g2.setColor(tm.getInputFill());
-        g2.fillRoundRect(0, 0, w - s, h, r, r);
+        g2.fillRoundRect(fillX, 0, w - s, h, r, r);
 
         // 3. Border
         Color borderColor = focused ? ColorTokens.PRIMARY_ACCENT : tm.getBorder();
         g2.setColor(borderColor);
         int strokeW = focused ? ColorTokens.HEAVY_BORDER : ColorTokens.BORDER_THICKNESS;
         g2.setStroke(new BasicStroke(strokeW));
-        g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+        g2.drawRoundRect(fillX, 0, w - s - 1, h - 1, r, r);
 
         g2.dispose();
     }

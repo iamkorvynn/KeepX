@@ -220,18 +220,21 @@ public class DashboardScreen extends JPanel
                         ? ColorTokens.PRIMARY_ACCENT  // lavender accent on hover
                         : tm.getBorder();
 
+                int shadowX = tm.isDark() ? 0 : s;
+                int fillX   = tm.isDark() ? s : 0;
+
                 // 1. Hard drop shadow
                 g2.setColor(shadow);
-                g2.fillRoundRect(s, s, w - s - 1, h - s - 1, r, r);
+                g2.fillRoundRect(shadowX, s, w - s - 1, h - s - 1, r, r);
 
                 // 2. Card fill
                 g2.setColor(fill);
-                g2.fillRoundRect(0, 0, w - s - 1, h - s - 1, r, r);
+                g2.fillRoundRect(fillX, 0, w - s - 1, h - s - 1, r, r);
 
                 // 3. Border
                 g2.setColor(border);
                 g2.setStroke(new BasicStroke(bw, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                g2.drawRoundRect(1, 1, w - s - 3, h - s - 3, r, r);
+                g2.drawRoundRect(fillX + 1, 1, w - s - 3, h - s - 3, r, r);
 
                 g2.dispose();
                 super.paintComponent(g);
@@ -241,9 +244,31 @@ public class DashboardScreen extends JPanel
         card.setOpaque(false);
         card.setLayout(new BorderLayout(16, 0));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
-        // Padding: 18px all sides (spec), plus shadow gap bottom+right
-        card.setBorder(BorderFactory.createEmptyBorder(
-                18, 18, 18 + 6, 18 + 6));
+
+        // Dynamic border padding based on theme
+        if (ThemeManager.getInstance().isDark()) {
+            card.setBorder(BorderFactory.createEmptyBorder(18, 18 + 6, 18 + 6, 18));
+        } else {
+            card.setBorder(BorderFactory.createEmptyBorder(18, 18, 18 + 6, 18 + 6));
+        }
+
+        ThemeManager.ThemeChangeListener themeListener = new ThemeManager.ThemeChangeListener() {
+            @Override
+            public void onThemeChanged(boolean isDark) {
+                if (isDark) {
+                    card.setBorder(BorderFactory.createEmptyBorder(18, 18 + 6, 18 + 6, 18));
+                } else {
+                    card.setBorder(BorderFactory.createEmptyBorder(18, 18, 18 + 6, 18 + 6));
+                }
+            }
+        };
+        ThemeManager.getInstance().addThemeChangeListener(themeListener);
+        card.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) != 0 && !card.isDisplayable()) {
+                ThemeManager.getInstance().removeThemeChangeListener(themeListener);
+            }
+        });
+
 
         // Hover listener: repaints card for border/shadow shift
         card.addMouseListener(new java.awt.event.MouseAdapter() {

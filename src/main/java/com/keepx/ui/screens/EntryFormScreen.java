@@ -138,25 +138,32 @@ public class EntryFormScreen extends JPanel
                 int r = ColorTokens.CORNER_RADIUS;
                 int s = ColorTokens.SHADOW_OFFSET;
 
+                int shadowX = tm.isDark() ? 0 : s;
+                int fillX   = tm.isDark() ? s : 0;
+
                 // 1. Shadow
                 g2.setColor(tm.getShadow());
-                g2.fillRoundRect(s, s, w - s, h, r, r);
+                g2.fillRoundRect(shadowX, s, w - s, h, r, r);
 
                 // 2. Fill
                 g2.setColor(tm.getSurface());
-                g2.fillRoundRect(0, 0, w - s, h, r, r);
+                g2.fillRoundRect(fillX, 0, w - s, h, r, r);
 
                 // 3. Border
                 g2.setColor(tm.getBorder());
                 g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-                g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+                g2.drawRoundRect(fillX, 0, w - s - 1, h - 1, r, r);
 
                 g2.dispose();
             }
         };
         notesWrapper.setOpaque(false);
         int shadowS = ColorTokens.SHADOW_OFFSET;
-        notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6, 6 + shadowS, 6 + shadowS));
+        if (ThemeManager.getInstance().isDark()) {
+            notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6 + shadowS, 6 + shadowS, 6));
+        } else {
+            notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6, 6 + shadowS, 6 + shadowS));
+        }
         notesWrapper.setPreferredSize(new Dimension(0, 160));
         notesWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
         notesWrapper.add(notesScroll, BorderLayout.CENTER);
@@ -383,6 +390,12 @@ public class EntryFormScreen extends JPanel
         notesArea.setBackground(tm.getSurface());
         notesArea.setCaretColor(ColorTokens.PRIMARY_ACCENT);
         if (notesWrapper != null) {
+            int shadowS = ColorTokens.SHADOW_OFFSET;
+            if (isDark) {
+                notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6 + shadowS, 6 + shadowS, 6));
+            } else {
+                notesWrapper.setBorder(BorderFactory.createEmptyBorder(6, 6, 6 + shadowS, 6 + shadowS));
+            }
             notesWrapper.repaint();
         }
         // ComboBox colors

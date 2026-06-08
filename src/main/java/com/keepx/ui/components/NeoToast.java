@@ -50,27 +50,31 @@ public class NeoToast extends JPanel implements ThemeManager.ThemeChangeListener
             default      -> tm.getSurface();
         };
 
+        int shadowX = tm.isDark() ? 0 : s;
+        int fillX   = tm.isDark() ? s : 0;
+
         // Shadow
         g2.setColor(tm.getShadow());
-        g2.fillRoundRect(s, s, w - s, h, r, r);
+        g2.fillRoundRect(shadowX, s, w - s, h, r, r);
 
         // Fill
         g2.setColor(fill);
-        g2.fillRoundRect(0, 0, w - s, h, r, r);
+        g2.fillRoundRect(fillX, 0, w - s, h, r, r);
 
         // Border
         g2.setColor(tm.getBorder());
         g2.setStroke(new BasicStroke(ColorTokens.BORDER_THICKNESS));
-        g2.drawRoundRect(0, 0, w - s - 1, h - 1, r, r);
+        g2.drawRoundRect(fillX, 0, w - s - 1, h - 1, r, r);
 
         // Message
         g2.setFont(new Font("SansSerif", Font.BOLD, 13));
         Color textColor = (type == Type.INFO) ? tm.getTextPrimary() : Color.WHITE;
         g2.setColor(textColor);
         FontMetrics fm = g2.getFontMetrics();
-        int tx = (w - s - fm.stringWidth(message)) / 2;
+        int tx = fillX + (w - s - fm.stringWidth(message)) / 2;
         int ty = (h - fm.getHeight()) / 2 + fm.getAscent();
         g2.drawString(message, tx, ty);
+
 
         g2.dispose();
     }
