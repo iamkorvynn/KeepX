@@ -226,7 +226,27 @@ public class AuditScreen extends JPanel
         JLabel l = new JLabel(t); l.setFont(new Font("SansSerif", st, s)); l.setForeground(c); return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    private void updateLabelColors(Container parent, ThemeManager tm) {
+        for (Component c : parent.getComponents()) {
+            if (c instanceof JLabel l) {
+                if (l == weakCount || l == dupCount || l == oldCount) continue;
+                if (l.getFont().getSize() >= 14 && l.getFont().isBold()) {
+                    l.setForeground(tm.getTextPrimary());
+                } else {
+                    l.setForeground(tm.getTextSecondary());
+                }
+            } else if (c instanceof Container cont) {
+                updateLabelColors(cont, tm);
+            }
+        }
+    }
+
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        updateLabelColors(this, tm);
+        repaint();
+    }
     @Override public void removeNotify() {
         super.removeNotify();
         ThemeManager.getInstance().removeThemeChangeListener(this);

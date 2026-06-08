@@ -263,7 +263,30 @@ public class GeneratorScreen extends JPanel
         return l;
     }
 
-    @Override public void onThemeChanged(boolean isDark) { repaint(); }
+    private void updateLabelColors(Container parent, ThemeManager tm) {
+
+        for (Component c : parent.getComponents()) {
+            if (c instanceof JLabel l) {
+                if (l == lengthLabel) continue;
+                if (l.getFont().isBold() || l == previewLabel) {
+                    l.setForeground(tm.getTextPrimary());
+                } else {
+                    l.setForeground(tm.getTextSecondary());
+                }
+            } else if (c instanceof JCheckBox cb) {
+                cb.setForeground(tm.getTextPrimary());
+            } else if (c instanceof Container cont) {
+                updateLabelColors(cont, tm);
+            }
+        }
+    }
+
+    @Override
+    public void onThemeChanged(boolean isDark) {
+        ThemeManager tm = ThemeManager.getInstance();
+        updateLabelColors(this, tm);
+        repaint();
+    }
     @Override public void onScreenShown() { if (history.isEmpty()) regenerate(); }
     @Override public void removeNotify() {
         super.removeNotify();

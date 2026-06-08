@@ -381,10 +381,26 @@ public class EntryFormScreen extends JPanel
         return l;
     }
 
+    private void updateLabelColors(Container parent, ThemeManager tm) {
+        for (Component c : parent.getComponents()) {
+            if (c instanceof JLabel l) {
+                if (l == errorLabel) continue;
+                if (l.getFont().isBold()) {
+                    l.setForeground(tm.getTextPrimary());
+                } else {
+                    l.setForeground(tm.getTextSecondary());
+                }
+            } else if (c instanceof Container cont) {
+                updateLabelColors(cont, tm);
+            }
+        }
+    }
+
     @Override
     public void onThemeChanged(boolean isDark) {
         ThemeManager tm = ThemeManager.getInstance();
-        titleLabel.setForeground(tm.getTextPrimary());
+        updateLabelColors(this, tm);
+
         tipsArea.setForeground(tm.getTextSecondary());
         notesArea.setForeground(tm.getTextPrimary());
         notesArea.setBackground(tm.getSurface());
