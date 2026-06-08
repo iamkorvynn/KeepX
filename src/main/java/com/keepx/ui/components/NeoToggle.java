@@ -117,7 +117,7 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
         // ── 2. Track fill ─────────────────────────────────────────────────────
         Color trackFill = selected
                 ? ColorTokens.PRIMARY_ACCENT
-                : (tm.isDark() ? new Color(0x30, 0x27, 0x45) : new Color(0xDE, 0xD5, 0xF0));
+                : tm.getMutedSurface();
         g2.setColor(trackFill);
         g2.fillRoundRect(fillTrackX, trackY, TRACK_W, TRACK_H, TRACK_H, TRACK_H);
 

@@ -209,8 +209,9 @@ public class DashboardScreen extends JPanel
 
                 // Card fill per spec
                 Color fill = pinned
-                        ? (tm.isDark() ? new Color(0x22, 0x1D, 0x35) : new Color(0xEA, 0xE0, 0xFF))
-                        : (tm.isDark() ? new Color(0x24, 0x1D, 0x35) : new Color(0xF8, 0xF5, 0xFF));
+                        ? (tm.isDark() ? new Color(0x1B, 0x1A, 0x24) : new Color(0xEA, 0xE0, 0xFF))
+                        : (tm.isDark() ? tm.getSurface() : new Color(0xF8, 0xF5, 0xFF));
+
 
                 // Shadow color per spec
                 Color shadow = tm.getShadow();

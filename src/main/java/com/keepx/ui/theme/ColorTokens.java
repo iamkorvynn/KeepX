@@ -42,14 +42,15 @@ public final class ColorTokens {
     public static final Color LIGHT_MUTED_SURFACE = new Color(0xDED5F0);
 
     // ── Dark Mode Palette — bold neo-brutalist dark ──────────────────────────────
-    public static final Color DARK_BACKGROUND     = new Color(0x1A, 0x15, 0x25); // #1A1525 deep purple-black
-    public static final Color DARK_SURFACE        = new Color(0x24, 0x1D, 0x35); // #241D35 card surface
+    public static final Color DARK_BACKGROUND     = new Color(0x00, 0x00, 0x00); // #000000 pure black
+    public static final Color DARK_SURFACE        = new Color(0x12, 0x12, 0x12); // #121212 very dark card surface
     public static final Color DARK_BORDER         = new Color(0x73, 0x56, 0xD6); // #7356D6 outline same as shadow
     public static final Color DARK_SHADOW         = new Color(0x73, 0x56, 0xD6); // #7356D6 one shade darker than lavender shadow
     public static final Color DARK_TEXT_PRIMARY    = new Color(0xF5, 0xF0, 0xFF); // #F5F0FF cream lavender
     public static final Color DARK_TEXT_SECONDARY  = new Color(0xA8, 0x9B, 0xC2); // #A89BC2 muted lavender
-    public static final Color DARK_INPUT_FILL     = new Color(0x1E, 0x17, 0x30); // #1E1730 dark input
-    public static final Color DARK_MUTED_SURFACE  = new Color(0x30, 0x27, 0x45); // #302745 hover/muted
+    public static final Color DARK_INPUT_FILL     = new Color(0x0A, 0x0A, 0x0A); // #0A0A0A very dark input background
+    public static final Color DARK_MUTED_SURFACE  = new Color(0x1E, 0x1E, 0x1E); // #1E1E1E dark grey hover/muted surface
+
 
     // ── Brand / Accent ─────────────────────────────────────────────────────────
     // Lavender is PRIMARY — used for active nav, primary buttons, focus rings

@@ -82,8 +82,9 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
 
         // Pinned: subtle lavender tint in dark, light lavender in light mode
         Color fill = pinned
-                ? (tm.isDark() ? new Color(0x222230) : new Color(0xEAE0FF))
+                ? (tm.isDark() ? new Color(0x1B, 0x1A, 0x24) : new Color(0xEAE0FF))
                 : tm.getSurface();
+
 
         int shadowX = tm.isDark() ? 0 : s;
         int fillX   = tm.isDark() ? s : 0;
