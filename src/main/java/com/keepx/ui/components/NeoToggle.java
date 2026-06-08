@@ -27,8 +27,6 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
     private static final int  THUMB_D      = 22;          // diameter
     private static final int  SHADOW_OFF   = 4;
     private static final int  BORDER_W     = 3;
-    // Yellow accent for ON state (per spec)
-    private static final Color ACCENT_ON   = new Color(0xFF, 0xE5, 0x00); // #FFE500
 
     private boolean selected = false;
 
@@ -116,7 +114,7 @@ public class NeoToggle extends JPanel implements ThemeManager.ThemeChangeListene
 
         // ── 2. Track fill ─────────────────────────────────────────────────────
         Color trackFill = selected
-                ? ACCENT_ON
+                ? ColorTokens.PRIMARY_ACCENT
                 : (tm.isDark() ? new Color(0x30, 0x27, 0x45) : new Color(0xDE, 0xD5, 0xF0));
         g2.setColor(trackFill);
         g2.fillRoundRect(trackX, trackY, TRACK_W, TRACK_H, TRACK_H, TRACK_H);

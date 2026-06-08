@@ -215,9 +215,9 @@ public class DashboardScreen extends JPanel
                 // Shadow color per spec
                 Color shadow = tm.isDark() ? new Color(0x2D, 0x20, 0x40) : new Color(0x00, 0x00, 0x00);
 
-                // Border: yellow on hover, else standard border
+                // Border: accent on hover, else standard border
                 Color border = hovered[0]
-                        ? new Color(0xFF, 0xE5, 0x00)  // yellow accent on hover
+                        ? ColorTokens.PRIMARY_ACCENT  // lavender accent on hover
                         : tm.getBorder();
 
                 // 1. Hard drop shadow

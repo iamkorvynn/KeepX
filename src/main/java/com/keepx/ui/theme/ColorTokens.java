@@ -53,9 +53,9 @@ public final class ColorTokens {
     public static final Color DARK_MUTED_SURFACE  = new Color(0x30, 0x27, 0x45); // #302745 hover/muted
 
     // ── Brand / Accent ─────────────────────────────────────────────────────────
-    // Yellow is PRIMARY — used for active nav, primary buttons, toggle ON state
-    public static final Color PRIMARY_ACCENT      = new Color(0xFF, 0xE5, 0x00); // #FFE500 yellow
-    public static final Color SECONDARY_ACCENT    = new Color(0xB3, 0x88, 0xFF); // #B388FF lavender
+    // Lavender is PRIMARY — used for active nav, primary buttons, focus rings
+    public static final Color PRIMARY_ACCENT      = new Color(0xC4, 0xB5, 0xFD); // #C4B5FD soft lavender
+    public static final Color SECONDARY_ACCENT    = new Color(0x9B, 0x7B, 0xFF); // #9B7BFF deeper lavender
     public static final Color DANGER              = new Color(0xFF, 0x4D, 0x4D); // red
     public static final Color SUCCESS             = new Color(0x4A, 0xDE, 0x80); // green
     public static final Color WARNING             = new Color(0xFB, 0xBF, 0x24); // amber
