@@ -47,7 +47,7 @@ public final class ColorTokens {
     public static final Color DARK_BORDER         = new Color(0x73, 0x56, 0xD6); // #7356D6 outline same as shadow
     public static final Color DARK_SHADOW         = new Color(0x73, 0x56, 0xD6); // #7356D6 one shade darker than lavender shadow
     public static final Color DARK_TEXT_PRIMARY    = new Color(0xF5, 0xF0, 0xFF); // #F5F0FF cream lavender
-    public static final Color DARK_TEXT_SECONDARY  = new Color(0xA8, 0x9B, 0xC2); // #A89BC2 muted lavender
+    public static final Color DARK_TEXT_SECONDARY  = new Color(0xC9, 0xBF, 0xDF); // #C9BFDF brighter pastel lavender
     public static final Color DARK_INPUT_FILL     = new Color(0x0A, 0x0A, 0x0A); // #0A0A0A very dark input background
     public static final Color DARK_MUTED_SURFACE  = new Color(0x1E, 0x1E, 0x1E); // #1E1E1E dark grey hover/muted surface
 
