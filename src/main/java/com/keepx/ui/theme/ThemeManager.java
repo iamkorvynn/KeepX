@@ -83,14 +83,13 @@ public final class ThemeManager {
 
     /** Recursively force background/foreground on containers that Swing might miss. */
     private void forceWindowBackground(Window w) {
-        Color bg      = getBackground();
-        Color text    = getTextPrimary();
+        Color bg   = getBackground();
+        Color text = getTextPrimary();
 
         w.setBackground(bg);
         if (w instanceof JFrame frame) {
             frame.getContentPane().setBackground(bg);
             frame.getRootPane().setBackground(bg);
-            // Walk the layered pane
             forcePanel(frame.getLayeredPane(), bg, text);
         }
         w.repaint();
@@ -98,14 +97,10 @@ public final class ThemeManager {
 
     private void forcePanel(Container c, Color bg, Color text) {
         if (c == null) return;
-        // Only force opaque containers that are plain JPanels (not our custom Neo* components)
-        if (c.getClass() == JPanel.class) {
+        // Only force plain JPanels — skip all opaque=false Neo* custom-painted components
+        // (they self-paint via ThemeChangeListener)
+        if (c.getClass() == JPanel.class && c.isOpaque()) {
             c.setBackground(bg);
-        }
-        // JTextArea that is NOT inside a NeoComponent — force colors
-        if (c instanceof JTextArea ta && !(c.getParent() instanceof JScrollPane sp
-                && sp.getParent() != null && sp.getParent().getClass().getName().contains("Neo"))) {
-            ta.setForeground(text);
         }
         for (Component child : c.getComponents()) {
             if (child instanceof Container cont) forcePanel(cont, bg, text);
@@ -121,7 +116,7 @@ public final class ThemeManager {
         Color surface = getSurface();
         Color text    = getTextPrimary();
         Color textSec = getTextSecondary();
-        Color accent  = ColorTokens.PRIMARY_ACCENT;
+        Color accent  = ColorTokens.PRIMARY_ACCENT;   // yellow in dark, yellow in light
         Color input   = getInputFill();
         Color border  = getBorder();
         Color muted   = getMutedSurface();
@@ -138,7 +133,7 @@ public final class ThemeManager {
 
         // ── Text ─────────────────────────────────────────────────────────────────
         UIManager.put("Label.foreground",               text);
-        UIManager.put("Label.background",               new Color(0, 0, 0, 0)); // transparent
+        UIManager.put("Label.background",               new Color(0, 0, 0, 0));
         UIManager.put("TextArea.foreground",            text);
         UIManager.put("TextArea.background",            surface);
         UIManager.put("TextArea.inactiveForeground",    textSec);
@@ -167,7 +162,7 @@ public final class ThemeManager {
 
         // ── ScrollBar ────────────────────────────────────────────────────────────
         UIManager.put("ScrollBar.background",           bg);
-        UIManager.put("ScrollBar.thumb",                isDark ? new Color(0x3A2E55) : new Color(0xC4B8E0));
+        UIManager.put("ScrollBar.thumb",                isDark ? new Color(0x3A, 0x2E, 0x55) : new Color(0xC4, 0xB8, 0xE0));
         UIManager.put("ScrollBar.thumbDarkShadow",      bg);
         UIManager.put("ScrollBar.thumbHighlight",       surface);
         UIManager.put("ScrollBar.track",                bg);
@@ -182,7 +177,7 @@ public final class ThemeManager {
         UIManager.put("Button.background",              surface);
         UIManager.put("Button.foreground",              text);
         UIManager.put("Button.hoverBackground",         muted);
-        UIManager.put("ToggleButton.background",        isDark ? new Color(0x2E2448) : new Color(0xD4C8ED));
+        UIManager.put("ToggleButton.background",        muted);
         UIManager.put("ToggleButton.foreground",        text);
         UIManager.put("ToggleButton.selectedBackground",accent);
         UIManager.put("ToggleButton.selectedForeground",new Color(0x0F0F0F));
@@ -230,7 +225,7 @@ public final class ThemeManager {
         UIManager.put("OptionPane.messageForeground",   text);
         UIManager.put("OptionPane.background",          surface);
 
-        // ── FlatLaf-specific: disable ALL accent/highlight colors that are blue ──
+        // ── FlatLaf-specific overrides ───────────────────────────────────────────
         UIManager.put("@accentColor",                   accent);
         UIManager.put("@accentBaseColor",               accent);
         UIManager.put("Component.accentColor",          accent);

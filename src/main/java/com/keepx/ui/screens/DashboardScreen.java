@@ -255,28 +255,28 @@ public class DashboardScreen extends JPanel
             }
         });
 
-        // ThemeManager listener so card repaints on theme switch
-        ThemeManager.getInstance().addThemeChangeListener(isDark -> card.repaint());
-
         // ── Left: info column ─────────────────────────────────────────────────
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
 
-        // Site name: 17px bold (spec)
+        // Site name: 17px bold — color updated in theme listener below
         JLabel siteName = label(
                 entry.getSiteName() != null ? entry.getSiteName() : "Untitled",
                 17, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         siteName.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Username: 13px, muted lavender #A89BC2 dark / text-secondary light (spec)
-        Color userColor = ThemeManager.getInstance().isDark()
-                ? new Color(0xA8, 0x9B, 0xC2)
-                : ThemeManager.getInstance().getTextSecondary();
+        // Username: muted lavender in dark / text-secondary in light
         JLabel username = label(
                 entry.getUsername() != null ? entry.getUsername() : "",
-                13, Font.PLAIN, userColor);
+                13, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
         username.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Update label colors whenever theme changes
+        ThemeManager.getInstance().addThemeChangeListener(dark -> {
+            siteName.setForeground(ThemeManager.getInstance().getTextPrimary());
+            username.setForeground(ThemeManager.getInstance().getTextSecondary());
+        });
 
         // Badge + date row (spec: category badge pill + small muted modified date)
         JPanel badgeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
