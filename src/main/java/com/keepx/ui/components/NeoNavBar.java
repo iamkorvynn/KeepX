@@ -12,7 +12,7 @@ import java.awt.event.*;
  * NeoNavBar — floating bottom pill navigation bar.
  * Painted on JLayeredPane.PALETTE_LAYER, centered horizontally.
  * Five items: Vault | Add Entry | Generator | Audit | Settings.
- * Active item = yellow fill + 6px shadow. Inactive = surface fill.
+ * Active item = primary accent fill + 6px shadow. Inactive = surface fill.
  */
 public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListener {
     private static final long serialVersionUID = 1L;
@@ -108,7 +108,7 @@ public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListene
             int itemY = (pillH - ITEM_H) / 2;
             boolean active = SCREEN_IDS[i].equals(activeScreen);
 
-            // Active item: yellow fill + shadow
+            // Active item: primary accent fill + shadow
             if (active) {
                 int as = 3;
                 g2.setColor(tm.getShadow());

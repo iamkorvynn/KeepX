@@ -24,9 +24,8 @@ import java.awt.Color;
  *  Text Sec   : #5E4D7A  muted purple
  *  Input fill : #FFFFFF  white
  *  Muted surf : #DED5F0  lavender tint
- *
- * PRIMARY ACCENT  : #FFE500  yellow — buttons, active nav, toggle ON
- * SECONDARY ACCENT: #B388FF  lavender — badges, highlights
+ * PRIMARY ACCENT  : #C4B5FD  soft lavender — buttons, active nav, toggle ON, focus rings
+ * SECONDARY ACCENT: #9B7BFF  deeper lavender — badges, highlights
  */
 public final class ColorTokens {
 

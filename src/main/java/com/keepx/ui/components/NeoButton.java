@@ -10,7 +10,7 @@ import java.awt.event.*;
 /**
  * NeoButton — Neo-Brutalist styled button with 3 variants.
  * Paints a hard offset shadow, then a filled rounded rect, then bold label.
- * Supports PRIMARY (yellow), SECONDARY (surface), DANGER (red) variants.
+ * Supports PRIMARY (primary accent), SECONDARY (surface), DANGER (red) variants.
  */
 public class NeoButton extends JButton implements ThemeManager.ThemeChangeListener {
     private static final long serialVersionUID = 1L;

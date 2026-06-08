@@ -11,8 +11,7 @@ import java.awt.event.MouseEvent;
 /**
  * NeoToggle — Neo-Brutalist custom-painted pill toggle switch.
  *
- * ON  state: yellow accent (#FFE500) track fill, thumb on the right.
- * OFF state: muted surface track fill, thumb on the left.
+ * ON  state: lavender accent track fill, thumb on the right.
  *
  * Draws: hard drop shadow → rounded pill track → circular thumb.
  * Size: 56px × 28px track,  22px thumb diameter.

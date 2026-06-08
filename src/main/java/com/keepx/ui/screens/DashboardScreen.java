@@ -189,7 +189,7 @@ public class DashboardScreen extends JPanel
     private JPanel buildEntryCard(VaultEntry entry, boolean pinned) {
         // ── Neo-Brutalist entry card ───────────────────────────────────────────
         // Custom-painted JPanel: shadow rect first, then card rect on top.
-        // Hover: border shifts to accent yellow + shadow deepens slightly.
+        // Hover: border shifts to primary accent + shadow deepens slightly.
         final boolean[] hovered = {false};
 
         JPanel card = new JPanel() {
@@ -299,7 +299,7 @@ public class DashboardScreen extends JPanel
 
         card.add(info, BorderLayout.CENTER);
 
-        // ── Right: action buttons (spec: star SECONDARY, copy PRIMARY=yellow, edit SECONDARY) ──
+        // ── Right: action buttons (spec: star SECONDARY, copy PRIMARY=accent, edit SECONDARY) ──
         JPanel actions = new JPanel();
         actions.setOpaque(false);
         actions.setLayout(new BoxLayout(actions, BoxLayout.X_AXIS));
@@ -318,7 +318,7 @@ public class DashboardScreen extends JPanel
             } catch (Exception ex) { ex.printStackTrace(); }
         });
 
-        // Copy button: PRIMARY = yellow fill (spec: "yellow fill, thick border, hard shadow")
+        // Copy button: PRIMARY = primary accent fill (spec: "primary accent fill, thick border, hard shadow")
         NeoButton copyBtn = new NeoButton("Copy", NeoButton.Variant.PRIMARY);
         copyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         copyBtn.setPreferredSize(new Dimension(60, 34));

@@ -116,7 +116,7 @@ public final class ThemeManager {
         Color surface = getSurface();
         Color text    = getTextPrimary();
         Color textSec = getTextSecondary();
-        Color accent  = ColorTokens.PRIMARY_ACCENT;   // yellow in dark, yellow in light
+        Color accent  = ColorTokens.PRIMARY_ACCENT;   // lavender accent in dark and light mode
         Color input   = getInputFill();
         Color border  = getBorder();
         Color muted   = getMutedSurface();
