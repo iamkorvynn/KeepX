@@ -45,7 +45,7 @@ public final class ColorTokens {
     public static final Color DARK_BACKGROUND     = new Color(0x1A, 0x15, 0x25); // #1A1525 deep purple-black
     public static final Color DARK_SURFACE        = new Color(0x24, 0x1D, 0x35); // #241D35 card surface
     public static final Color DARK_BORDER         = new Color(0xFF, 0xFF, 0xFF); // #FFFFFF white outlines
-    public static final Color DARK_SHADOW         = new Color(0xFF, 0xFF, 0xFF); // #FFFFFF white shadow
+    public static final Color DARK_SHADOW         = new Color(0x16, 0x0E, 0x28); // #160E28 darker lavender shadow
     public static final Color DARK_TEXT_PRIMARY    = new Color(0xF5, 0xF0, 0xFF); // #F5F0FF cream lavender
     public static final Color DARK_TEXT_SECONDARY  = new Color(0xA8, 0x9B, 0xC2); // #A89BC2 muted lavender
     public static final Color DARK_INPUT_FILL     = new Color(0x1E, 0x17, 0x30); // #1E1730 dark input
