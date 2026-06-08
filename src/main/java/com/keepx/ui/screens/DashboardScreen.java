@@ -187,56 +187,128 @@ public class DashboardScreen extends JPanel
     }
 
     private JPanel buildEntryCard(VaultEntry entry, boolean pinned) {
-        NeoCard card = new NeoCard(pinned);
-        // Use BorderLayout: CENTER = info, EAST = buttons
+        // ── Neo-Brutalist entry card ───────────────────────────────────────────
+        // Custom-painted JPanel: shadow rect first, then card rect on top.
+        // Hover: border shifts to accent yellow + shadow deepens slightly.
+        final boolean[] hovered = {false};
+
+        JPanel card = new JPanel() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                ThemeManager tm = ThemeManager.getInstance();
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int r = 12;                   // corner radius (spec: 12px)
+                int s = 6;                    // shadow offset (spec: 6px right, 6px down)
+                int bw = 3;                   // border width (spec: 3px)
+
+                // Card fill per spec
+                Color fill = pinned
+                        ? (tm.isDark() ? new Color(0x22, 0x1D, 0x35) : new Color(0xEA, 0xE0, 0xFF))
+                        : (tm.isDark() ? new Color(0x24, 0x1D, 0x35) : new Color(0xF8, 0xF5, 0xFF));
+
+                // Shadow color per spec
+                Color shadow = tm.isDark() ? new Color(0x2D, 0x20, 0x40) : new Color(0x00, 0x00, 0x00);
+
+                // Border: yellow on hover, else standard border
+                Color border = hovered[0]
+                        ? new Color(0xFF, 0xE5, 0x00)  // yellow accent on hover
+                        : tm.getBorder();
+
+                // 1. Hard drop shadow
+                g2.setColor(shadow);
+                g2.fillRoundRect(s, s, w - s - 1, h - s - 1, r, r);
+
+                // 2. Card fill
+                g2.setColor(fill);
+                g2.fillRoundRect(0, 0, w - s - 1, h - s - 1, r, r);
+
+                // 3. Border
+                g2.setColor(border);
+                g2.setStroke(new BasicStroke(bw, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawRoundRect(1, 1, w - s - 3, h - s - 3, r, r);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+
+        card.setOpaque(false);
         card.setLayout(new BorderLayout(16, 0));
-        // No fixed max height — let content determine height naturally, just give padding room for shadow
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        // Padding: 18px all sides (spec), plus shadow gap bottom+right
         card.setBorder(BorderFactory.createEmptyBorder(
-            14, 18, 14 + ColorTokens.SHADOW_OFFSET, 18 + ColorTokens.SHADOW_OFFSET));
+                18, 18, 18 + 6, 18 + 6));
+
+        // Hover listener: repaints card for border/shadow shift
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+                hovered[0] = true;  card.repaint();
+            }
+            @Override public void mouseExited(java.awt.event.MouseEvent e) {
+                hovered[0] = false; card.repaint();
+            }
+        });
+
+        // ThemeManager listener so card repaints on theme switch
+        ThemeManager.getInstance().addThemeChangeListener(isDark -> card.repaint());
 
         // ── Left: info column ─────────────────────────────────────────────────
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
 
-        JLabel siteName = label(entry.getSiteName() != null ? entry.getSiteName() : "Untitled",
-                15, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
-        siteName.setAlignmentX(Component.LEFT_ALIGNMENT); // CRITICAL: left-align in BoxLayout
+        // Site name: 17px bold (spec)
+        JLabel siteName = label(
+                entry.getSiteName() != null ? entry.getSiteName() : "Untitled",
+                17, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
+        siteName.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel username = label(entry.getUsername() != null ? entry.getUsername() : "",
-                13, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        // Username: 13px, muted lavender #A89BC2 dark / text-secondary light (spec)
+        Color userColor = ThemeManager.getInstance().isDark()
+                ? new Color(0xA8, 0x9B, 0xC2)
+                : ThemeManager.getInstance().getTextSecondary();
+        JLabel username = label(
+                entry.getUsername() != null ? entry.getUsername() : "",
+                13, Font.PLAIN, userColor);
         username.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Badge + date on one row
+        // Badge + date row (spec: category badge pill + small muted modified date)
         JPanel badgeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         badgeRow.setOpaque(false);
         badgeRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         NeoBadge badge = new NeoBadge(entry.getCategory() != null ? entry.getCategory() : "Other");
         String date = new SimpleDateFormat("MMM d, yyyy").format(new Date(entry.getLastModified()));
-        JLabel mod = label("· Modified " + date, 11, Font.PLAIN, ThemeManager.getInstance().getTextSecondary());
+        JLabel mod = label("· Modified " + date, 11, Font.PLAIN,
+                ThemeManager.getInstance().getTextSecondary());
         badgeRow.add(badge);
         badgeRow.add(mod);
 
         info.add(Box.createVerticalGlue());
         info.add(siteName);
-        info.add(Box.createVerticalStrut(3));
+        info.add(Box.createVerticalStrut(4));
         info.add(username);
-        info.add(Box.createVerticalStrut(6));
+        info.add(Box.createVerticalStrut(8));
         info.add(badgeRow);
         info.add(Box.createVerticalGlue());
 
         card.add(info, BorderLayout.CENTER);
 
-        // ── Right: action buttons ─────────────────────────────────────────────
+        // ── Right: action buttons (spec: star SECONDARY, copy PRIMARY=yellow, edit SECONDARY) ──
         JPanel actions = new JPanel();
         actions.setOpaque(false);
         actions.setLayout(new BoxLayout(actions, BoxLayout.X_AXIS));
 
+        // Star button: 32×32, SECONDARY, thick border, hard shadow (via NeoButton)
         NeoButton starBtn = new NeoButton(entry.isFavourite() ? "★" : "☆", NeoButton.Variant.SECONDARY);
         starBtn.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        starBtn.setPreferredSize(new Dimension(42, 36));
-        starBtn.setMaximumSize(new Dimension(42, 36));
+        starBtn.setPreferredSize(new Dimension(38, 34));
+        starBtn.setMaximumSize(new Dimension(38, 34));
         starBtn.setToolTipText(entry.isFavourite() ? "Unpin" : "Pin");
         starBtn.addActionListener(e -> {
             try {
@@ -246,16 +318,18 @@ public class DashboardScreen extends JPanel
             } catch (Exception ex) { ex.printStackTrace(); }
         });
 
-        NeoButton copyBtn = new NeoButton("Copy", NeoButton.Variant.SECONDARY);
+        // Copy button: PRIMARY = yellow fill (spec: "yellow fill, thick border, hard shadow")
+        NeoButton copyBtn = new NeoButton("Copy", NeoButton.Variant.PRIMARY);
         copyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        copyBtn.setPreferredSize(new Dimension(60, 36));
-        copyBtn.setMaximumSize(new Dimension(60, 36));
+        copyBtn.setPreferredSize(new Dimension(60, 34));
+        copyBtn.setMaximumSize(new Dimension(60, 34));
         copyBtn.addActionListener(e -> copyPassword(entry));
 
+        // Edit button: SECONDARY = surface fill (spec: "surface fill, thick border, hard shadow")
         NeoButton editBtn = new NeoButton("Edit", NeoButton.Variant.SECONDARY);
         editBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        editBtn.setPreferredSize(new Dimension(52, 36));
-        editBtn.setMaximumSize(new Dimension(52, 36));
+        editBtn.setPreferredSize(new Dimension(52, 34));
+        editBtn.setMaximumSize(new Dimension(52, 34));
         editBtn.addActionListener(e -> openEdit(entry));
 
         actions.add(starBtn);
@@ -271,13 +345,13 @@ public class DashboardScreen extends JPanel
 
         card.add(actionsWrap, BorderLayout.EAST);
 
-        // ── Outer wrap: card + shadow gap ──────────────────────────────────────
+        // ── Outer wrap: card + bottom spacing ─────────────────────────────────
         JPanel wrap = new JPanel();
         wrap.setOpaque(false);
         wrap.setLayout(new BoxLayout(wrap, BoxLayout.Y_AXIS));
         wrap.setAlignmentX(Component.LEFT_ALIGNMENT);
         wrap.add(card);
-        wrap.add(Box.createVerticalStrut(8));
+        wrap.add(Box.createVerticalStrut(10));
         return wrap;
     }
 

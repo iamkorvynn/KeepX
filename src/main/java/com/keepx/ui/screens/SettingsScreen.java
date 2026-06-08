@@ -28,8 +28,8 @@ public class SettingsScreen extends JPanel
     private final JLabel lastBackupLabel;
     private final JLabel titleLabel;
 
-    // Theme toggle — stored as field so onThemeChanged can update its label text
-    private final NeoButton darkModeBtn;
+    // Theme toggle — custom pill switch; stored as field so onThemeChanged can sync its state
+    private final NeoToggle darkModeToggle;
 
     // Labels that hold ThemeManager colors at construction time → must update on theme change
     private final List<JLabel>    themedLabels    = new ArrayList<>();
@@ -50,15 +50,12 @@ public class SettingsScreen extends JPanel
         content.add(Box.createVerticalStrut(16));
 
         // ── Dark Mode Toggle ───────────────────────────────────────────────────
-        // Use NeoButton as a toggle so it follows KeepX palette, not FlatLaf blue
-        darkModeBtn = new NeoButton(
-            ThemeManager.getInstance().isDark() ? "\u2600 Switch to Light" : "\uD83C\uDF19 Switch to Dark",
-            ThemeManager.getInstance().isDark() ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY
-        );
-        darkModeBtn.addActionListener(e -> {
+        // NeoToggle: custom-painted pill switch, ON = dark mode, OFF = light mode
+        darkModeToggle = new NeoToggle(ThemeManager.getInstance().isDark());
+        darkModeToggle.addActionListener(e -> {
             ThemeManager.getInstance().toggle();
             VaultManager.getInstance().saveDarkMode(ThemeManager.getInstance().isDark());
-            // label / variant updated in onThemeChanged()
+            // selected state synced in onThemeChanged()
         });
 
         // ── Appearance ────────────────────────────────────────────────────────────
@@ -98,8 +95,16 @@ public class SettingsScreen extends JPanel
         JLabel lbl = label("Dark Mode", 14, Font.BOLD, ThemeManager.getInstance().getTextPrimary());
         trackLabel(lbl);
         p.add(lbl);
+        p.add(Box.createHorizontalStrut(16));
+        // Small muted label describing current state, sits next to the toggle
+        JLabel stateHint = label(
+            ThemeManager.getInstance().isDark() ? "On" : "Off",
+            12, Font.PLAIN, ThemeManager.getInstance().getTextSecondary()
+        );
+        trackLabel(stateHint);
+        p.add(stateHint);
         p.add(Box.createHorizontalGlue());
-        p.add(darkModeBtn);
+        p.add(darkModeToggle);
         return p;
     }
 
@@ -375,9 +380,8 @@ public class SettingsScreen extends JPanel
         // Secondary-color labels
         lastBackupLabel.setForeground(tm.getTextSecondary());
 
-        // Dark mode toggle button label / variant
-        darkModeBtn.setText(isDark ? "\u2600 Switch to Light" : "\uD83C\uDF19 Switch to Dark");
-        darkModeBtn.setVariant(isDark ? NeoButton.Variant.SECONDARY : NeoButton.Variant.PRIMARY);
+        // Sync toggle selected state (in case it was changed externally)
+        darkModeToggle.setSelected(isDark);
 
         repaint();
     }
