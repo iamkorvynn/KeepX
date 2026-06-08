@@ -8,7 +8,6 @@ import com.keepx.ui.theme.ThemeManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 /**
  * LoginScreen — unlocks the existing vault with the master password.

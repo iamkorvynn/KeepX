@@ -37,7 +37,6 @@ public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListene
     private static final int NAV_W    = 500;
     private static final int ITEM_W   = 90;
     private static final int ITEM_H   = 48;
-    private static final int PAD_H    = 8;
 
     public NeoNavBar() {
         itemBounds = new Rectangle[SCREEN_IDS.length];
@@ -77,7 +76,6 @@ public class NeoNavBar extends JPanel implements ThemeManager.ThemeChangeListene
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         int w = getWidth();
-        int h = getHeight();
         int s = ColorTokens.SHADOW_OFFSET;
         int r = 32; // pill radius
 

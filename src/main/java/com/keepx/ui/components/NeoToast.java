@@ -5,7 +5,6 @@ import com.keepx.ui.theme.ThemeManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 
 /**
@@ -20,10 +19,6 @@ public class NeoToast extends JPanel implements ThemeManager.ThemeChangeListener
 
     private String message;
     private Type type;
-    private Timer dismissTimer;
-    private Timer slideTimer;
-    private int targetY;
-    private int currentY;
 
     public NeoToast(String message, Type type) {
         this.message = message;

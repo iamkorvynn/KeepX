@@ -84,7 +84,6 @@ public final class ThemeManager {
     /** Recursively force background/foreground on containers that Swing might miss. */
     private void forceWindowBackground(Window w) {
         Color bg      = getBackground();
-        Color surface = getSurface();
         Color text    = getTextPrimary();
 
         w.setBackground(bg);

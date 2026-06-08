@@ -20,7 +20,6 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
     private String placeholder = "";
     private boolean focused = false;
     private boolean error   = false;
-    private String errorText = "";
 
     public NeoTextField() {
         this("");
@@ -66,9 +65,8 @@ public class NeoTextField extends JPanel implements ThemeManager.ThemeChangeList
     public String getText() { return field.getText(); }
     public void setText(String text) { field.setText(text); }
 
-    public void setError(boolean error, String msg) {
+    public void setError(boolean error) {
         this.error = error;
-        this.errorText = msg == null ? "" : msg;
         repaint();
     }
 

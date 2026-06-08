@@ -16,7 +16,6 @@ public class NeoCard extends JPanel implements ThemeManager.ThemeChangeListener 
     private static final long serialVersionUID = 1L;
 
     private boolean pinned = false;
-    private boolean hovered = false;
 
     public NeoCard() {
         init();

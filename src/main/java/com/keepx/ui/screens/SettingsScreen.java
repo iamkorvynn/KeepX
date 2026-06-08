@@ -33,7 +33,6 @@ public class SettingsScreen extends JPanel
 
     // Labels that hold ThemeManager colors at construction time → must update on theme change
     private final List<JLabel>    themedLabels    = new ArrayList<>();
-    private final List<JTextArea> themedTextAreas = new ArrayList<>();
 
     public SettingsScreen() {
         setOpaque(false);
