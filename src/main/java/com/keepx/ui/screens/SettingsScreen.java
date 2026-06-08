@@ -31,6 +31,7 @@ public class SettingsScreen extends JPanel
     // Theme toggle — custom pill switch; stored as field so onThemeChanged can sync its state
     private final NeoToggle darkModeToggle;
     private JLabel stateHint;
+    private JLabel modeIcon;
 
     // Labels that hold ThemeManager colors at construction time → must update on theme change
     private final List<JLabel>    themedLabels    = new ArrayList<>();
@@ -106,16 +107,13 @@ public class SettingsScreen extends JPanel
         p.add(stateHint);
         p.add(Box.createHorizontalGlue());
 
-        JLabel sunIcon = label("\u2600\uFE0F", 16, Font.PLAIN, ThemeManager.getInstance().getTextPrimary()); // ☀️
-        JLabel moonIcon = label("\uD83C\uDF19", 16, Font.PLAIN, ThemeManager.getInstance().getTextPrimary()); // 🌙
-        trackLabel(sunIcon);
-        trackLabel(moonIcon);
+        boolean isDark = ThemeManager.getInstance().isDark();
+        modeIcon = label(isDark ? "\uD83C\uDF19" : "\u2600\uFE0F", 16, Font.PLAIN, ThemeManager.getInstance().getTextPrimary());
+        trackLabel(modeIcon);
 
-        p.add(sunIcon);
+        p.add(modeIcon);
         p.add(Box.createHorizontalStrut(8));
         p.add(darkModeToggle);
-        p.add(Box.createHorizontalStrut(8));
-        p.add(moonIcon);
         return p;
     }
 
@@ -389,6 +387,9 @@ public class SettingsScreen extends JPanel
         if (stateHint != null) {
             stateHint.setText(isDark ? "On" : "Off");
             stateHint.setForeground(tm.getTextSecondary());
+        }
+        if (modeIcon != null) {
+            modeIcon.setText(isDark ? "\uD83C\uDF19" : "\u2600\uFE0F");
         }
 
         // Sync toggle selected state (in case it was changed externally)
